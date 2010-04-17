@@ -11,13 +11,14 @@ $(function() {
             
             update: function() {
                 var self = this;
-                self.element.find('.stopname').text(self.name);
+                self.element.addClass('loading');
                 $.ajax({
                     url: 'dyn/times/' + escape(self.name),
                     cache: false,
                     dataType: 'json',
                     success: function(result) {
                         if ( result ) {
+                            self.element.find('.stopname').text(result.name);
                             var tbody = self.element.find('.timetable tbody');
                             tbody.find('tr').each(function(i) {
                                 var row = $(this);
@@ -31,11 +32,12 @@ $(function() {
                                     row.find('td.departure').text(time.departure);
                                 }
                             });
-                            
                         }
+                        self.element.removeClass('loading');
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
                         alert(textStatus);
+                        self.element.removeClass('loading');
                     }
                 });
             }
@@ -43,6 +45,8 @@ $(function() {
         
         return stop;
     };
+    
+    
     
     var current_stop = null;
     

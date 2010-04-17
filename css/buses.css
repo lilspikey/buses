@@ -74,6 +74,9 @@ body {
     padding: 5px;
     font-size: 2em;
 }
+.panel .loading h1 {
+    background: url(../img/loading.gif) right center no-repeat;
+}
 .panel .details > table {
     border-collapse: collapse;
     width: 100%;
