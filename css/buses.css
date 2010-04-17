@@ -89,3 +89,7 @@ body {
 .panel .details > table tr:nth-child(odd) td {
     background: #036;
 }
+
+.panel form {
+    padding: 5px;
+}
