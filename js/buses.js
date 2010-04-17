@@ -1,4 +1,12 @@
 $(function() {
+    var get_storage = function() {
+        if ( window.localStorage ) {
+            return window.localStorage;
+        }
+        // TODO use in memory storage?
+        alert('Sorry no local storage available');
+    };
+    
     var flip = function(front, back) {
         $(front).addClass('hidden');
         $(back).removeClass('hidden');
@@ -8,6 +16,10 @@ $(function() {
         var stop = {
             element: element,
             name: name,
+            
+            save: function() {
+                add_bus_stop(this.name);
+            },
             
             update: function() {
                 var self = this;
@@ -46,10 +58,42 @@ $(function() {
         return stop;
     };
     
+    var _get_names = function() {
+        var store = get_storage();
+        var names = store.getItem('bus_stops') || '';
+        names = names.split(/ /);
+        var non_empty = []
+        for ( var i = 0; i < names.length; i++ ) {
+            if ( names[i] ) {
+                non_empty.push(unescape(names[i]));
+            }
+        }
+        return non_empty;
+    };
     
+    var get_bus_stops = function() {
+        var names = _get_names()
+        var bus_stops = [];
+        if ( names ) {
+            for ( var i = 0; i < names.length; i++ ) {
+                bus_stops.push(bus_stop($('#front .details'), names[i]));
+            }
+        }
+        return bus_stops;
+    };
     
-    var current_stop = null;
-    
+    var add_bus_stop = function(name) {
+        var store = get_storage();
+        var names = _get_names()
+        if ( $.inArray(name, names) < 0 ) {
+            names.push(name);
+            for ( var i = 0; i < names.length; i++ ) {
+                names[i] = escape(names[i]);
+            }
+            store.setItem('bus_stops', names.join(' '));
+        }
+    }
+        
     $('#front a.settings').click(function(event) {
         event.preventDefault();
         flip('#front', '#back');
@@ -59,8 +103,15 @@ $(function() {
         event.preventDefault();
         var name = $('#back form.add_stop input[name=stop_name]').val();
         current_stop = bus_stop($('#front .details'), name);
+        current_stop.save();
         current_stop.update();
         flip('#back', '#front');
     });
     
+    var bus_stops = get_bus_stops();
+    var current_stop = bus_stops? bus_stops[0] : null;
+    
+    if ( current_stop != null ) {
+        current_stop.update();
+    }
 });
