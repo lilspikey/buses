@@ -74,14 +74,18 @@ body {
 }
 .panel .details h1 {
     padding: 5px;
-}
-.panel .details > ul {
-
-}
-.panel .details > ul li {
     font-size: 2em;
-    padding: 5px;
 }
-.panel .details > ul li:nth-child(odd) {
+.panel .details > table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.panel .details > table tr td,
+.panel .details > table tr th {
+    font-size: 1.5em;
+    padding: 5px;
+    text-align: left;
+}
+.panel .details > table tr:nth-child(odd) td {
     background: #036;
 }
