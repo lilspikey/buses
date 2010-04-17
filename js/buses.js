@@ -24,6 +24,7 @@ $(function() {
             update: function() {
                 var self = this;
                 self.element.addClass('loading');
+                self.element.find('.stopname').text(self.name);
                 $.ajax({
                     url: 'dyn/times/' + escape(self.name),
                     cache: false,
