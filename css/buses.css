@@ -1,0 +1,47 @@
+html, body {
+    height: 99.5%;
+}
+body {
+    margin: 0;
+    background: black;
+    color: white;
+}
+#content {
+    height: 100%;
+    padding: 2px;
+}
+.panel {
+    height: 100%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: #003;
+    border: 1px solid #039;
+    position: relative;
+}
+
+#back {
+    display: none;
+}
+
+.panel a {
+    color: #000;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    display: block;
+    width: 15px;
+    height: 15px;
+    font-size: 12px;
+    line-height: 15px;
+    text-align: center;
+    font-weight: bold;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    background: #ccc;
+}
+.panel a:hover {
+    color: #333;
+    background: #fff;
+}
