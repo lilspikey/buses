@@ -23,8 +23,7 @@ body {
     border: 1px solid #039;
     position: absolute;
     padding: 5px;
-    -webkit-transition: -webkit-transform 2s ease;
-    -webkit-transition: -webkit-transform 2s ease, 
+    -webkit-transition: -webkit-transform 2s ease,
                         opacity 2s ease-in,
                         z-index 2s linear;
     -webkit-transform: rotateY(0deg);
