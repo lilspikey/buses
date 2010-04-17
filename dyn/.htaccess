@@ -3,4 +3,4 @@ SetHandler cgi-script
 
 RewriteEngine on
 RewriteBase /~john/buses/dyn
-RewriteRule times times.py [L]
+RewriteRule ^times/(.*)$ times.py?stop=$1 [L,QSA]

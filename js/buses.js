@@ -10,7 +10,34 @@ $(function() {
             name: name,
             
             update: function() {
-                this.element.find('.stopname').text(this.name);
+                var self = this;
+                self.element.find('.stopname').text(self.name);
+                $.ajax({
+                    url: 'dyn/times/' + escape(self.name),
+                    cache: false,
+                    dataType: 'json',
+                    success: function(result) {
+                        if ( result ) {
+                            var tbody = self.element.find('.timetable tbody');
+                            tbody.find('tr').each(function(i) {
+                                var row = $(this);
+                                if ( i >= result.times.length ) {
+                                    row.find('td').html('&nbsp;');
+                                }
+                                else {
+                                    var time = result.times[i];
+                                    row.find('td.route').text(time.route);
+                                    row.find('td.destination').text(time.destination);
+                                    row.find('td.departure').text(time.departure);
+                                }
+                            });
+                            
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
             }
         };
         

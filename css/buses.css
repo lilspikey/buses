@@ -89,6 +89,9 @@ body {
 .panel .details > table tr:nth-child(odd) td {
     background: #036;
 }
+.panel .details > table tr td.route {
+    text-align: right;
+}
 
 .panel form {
     padding: 5px;
