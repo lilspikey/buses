@@ -4,7 +4,7 @@ $(function() {
         $(back).removeClass('hidden');
     };
     
-    var busstop = function(element, name) {
+    var bus_stop = function(element, name) {
         var stop = {
             element: element,
             name: name,
@@ -27,7 +27,7 @@ $(function() {
     $('#back button.done').click(function(event) {
         event.preventDefault();
         var name = $('#back form.add_stop input[name=stop_name]').val();
-        current_stop = busstop($('#front .details'), name);
+        current_stop = bus_stop($('#front .details'), name);
         current_stop.update();
         flip('#back', '#front');
     });
