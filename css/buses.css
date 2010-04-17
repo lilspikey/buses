@@ -82,7 +82,7 @@ body {
 }
 .panel .details > table tr td,
 .panel .details > table tr th {
-    font-size: 1.5em;
+    font-size: 1.25em;
     padding: 5px;
     text-align: left;
 }
