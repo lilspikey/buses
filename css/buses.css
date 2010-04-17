@@ -31,7 +31,6 @@ body {
     border: 1px solid #039;
     position: absolute;
     -webkit-transition: -webkit-transform 2s ease,
-                        opacity 2s linear,
                         z-index 2s linear;
     -webkit-transform: rotateY(0deg);
     -webkit-perspective: 500px;
@@ -41,7 +40,6 @@ body {
 
 .panel.hidden {
     -webkit-transform: rotateY(180deg);
-    opacity: 0;
     z-index: -100;
 }
 
