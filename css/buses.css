@@ -70,7 +70,9 @@ body {
 .panel .details {
     width: 100%;
 }
-.panel .details h1 {
+.panel h1,
+.panel h2 {
+    margin: 0 5px 0 0;
     padding: 5px;
     font-size: 2em;
 }
@@ -96,4 +98,13 @@ body {
 
 .panel form {
     padding: 5px;
+}
+
+.panel ul#bus_stops li {
+    font-size: 1.25em;
+    padding: 5px;
+    text-align: left;
+}
+.panel ul#bus_stops li:nth-child(odd) {
+    background: #036;
 }

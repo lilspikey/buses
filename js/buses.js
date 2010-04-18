@@ -94,7 +94,17 @@ $(function() {
             store.setItem('bus_stops', names.join(' '));
         }
     }
-        
+    
+    var display_stops = function(bus_stops) {
+        $('#back ul#bus_stops li').remove();
+        if ( bus_stops ) {
+            for ( var i = 0; i < bus_stops.length; i++ ) {
+                var stop = bus_stops[i];
+                $('#back ul#bus_stops').append($('<li></li>').text(stop.name));
+            }
+        }
+    };
+    
     $('#front a.settings').click(function(event) {
         event.preventDefault();
         flip('#front', '#back');
@@ -110,6 +120,8 @@ $(function() {
     });
     
     var bus_stops = get_bus_stops();
+    display_stops(bus_stops);
+    
     var current_stop = bus_stops? bus_stops[0] : null;
     
     if ( current_stop != null ) {
