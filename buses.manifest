@@ -2,6 +2,7 @@ CACHE MANIFEST
 
 # version 1.0
 
+CACHE:
 css/buses.css
 
 js/jquery-1.4.2.min.js
