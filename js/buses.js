@@ -100,7 +100,7 @@ $(function() {
         flip('#front', '#back');
     });
     
-    $('#back button.done').click(function(event) {
+    $('#back form.add_stop').submit(function(event) {
         event.preventDefault();
         var name = $('#back form.add_stop input[name=stop_name]').val();
         current_stop = bus_stop($('#front .details'), name);
