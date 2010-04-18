@@ -131,3 +131,6 @@ ul#stop_links li a.active,
 ul#stop_links li a:hover {
     color: #fff;
 }
+ul#bus_stops li a {
+    color: #fff;
+}

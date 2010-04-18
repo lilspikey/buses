@@ -105,14 +105,22 @@ $(function() {
             for ( var i = 0; i < bus_stops.length; i++ ) {
                 var stop = bus_stops[i];
                 var active = (current_stop.name == stop.name);
-                $('#back ul#bus_stops').append($('<li></li>').text(stop.name));
-                $('ul#stop_links').append(
-                    $('<li></li>').append(
-                        $('<a>&#149;</a>')
-                            .attr('href', stop.name)
-                            .addClass(active? 'active' : '')
-                    )
-                );
+                $('#back ul#bus_stops')
+                    .append(
+                        $('<li></li>').append(
+                            $('<a></a>')
+                                .text(stop.name)
+                                .attr('href', stop.name)
+                        )
+                    );
+                $('ul#stop_links')
+                    .append(
+                        $('<li></li>').append(
+                            $('<a>&#149;</a>')
+                                .attr('href', stop.name)
+                                .addClass(active? 'active' : '')
+                            )
+                    );
             }
         }
     };
@@ -133,6 +141,13 @@ $(function() {
         event.preventDefault();
         var name = $(this).attr('href');
         display_stop(name);
+    });
+    
+    $('ul#bus_stops li a').live('click', function(event) {
+        event.preventDefault();
+        var name = $(this).attr('href');
+        display_stop(name);
+        flip('#back', '#front');
     });
     
     $('#front .settings a').live('click', function(event) {
