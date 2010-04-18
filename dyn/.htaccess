@@ -2,5 +2,7 @@ Options +ExecCGI +FollowSymLinks -MultiViews -Indexes
 SetHandler cgi-script
 
 RewriteEngine on
-RewriteBase /~john/buses/dyn
-RewriteRule ^times/(.*)$ times.py?stop=$1 [L,QSA]
+RewriteCond %{REQUEST_URI} !^.*/times.py$
+RewriteCond %{REQUEST_URI} ^(.*)/times/(.*)$
+RewriteRule ^.*$ %1/times.py?stop=%2 [L]
+
