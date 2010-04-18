@@ -21,14 +21,14 @@ body {
 }
 .panel {
     height: 100%;
-    width: 100%;
-    top: 1px;
-    left: 0;
+    width: 100%;    
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
     background: #003;
     border: 1px solid #039;
+    top: 1px;
+    left: 0;
     position: absolute;
     -webkit-transition: -webkit-transform 2s ease,
                         z-index 2s linear;
@@ -43,12 +43,19 @@ body {
     z-index: -100;
 }
 
-.panel a.settings {
-    color: #000;
+.panel .settings {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: right;
+}
+
+.panel .settings a {
+    color: #000;
+    float: right;
     display: block;
+    margin: 5px;
     width: 15px;
     height: 15px;
     font-size: 12px;
@@ -62,7 +69,7 @@ body {
     border-radius: 7px;
     background: #ccc;
 }
-.panel a.settings:hover {
+.panel .settings a:hover {
     color: #333;
     background: #fff;
 }

@@ -8,8 +8,11 @@ $(function() {
     };
     
     var flip = function(front, back) {
-        $(front).addClass('hidden');
-        $(back).removeClass('hidden');
+        $(back).show(function() { 
+            $(back).removeClass('hidden');
+            $(front).addClass('hidden');
+            setTimeout(function() { $(front).hide(); }, 1500);
+        });
     };
     
     var bus_stop = function(element, name) {
@@ -132,7 +135,7 @@ $(function() {
         display_stop(name);
     });
     
-    $('#front a.settings').click(function(event) {
+    $('#front .settings a').live('click', function(event) {
         event.preventDefault();
         flip('#front', '#back');
     });
@@ -148,13 +151,16 @@ $(function() {
         flip('#back', '#front');
     });
     
-    
-    
     var bus_stops = get_bus_stops();
     var current_stop = bus_stops? bus_stops[0] : null;
     display_stops(bus_stops);
     
+    $('#back').hide();
+    
     if ( current_stop != null ) {
         current_stop.update();
+    }
+    else {
+        flip('#front', '#back');
     }
 });
