@@ -43,7 +43,7 @@ body {
     z-index: -100;
 }
 
-.panel a {
+.panel a.settings {
     color: #000;
     position: absolute;
     bottom: 5px;
@@ -62,7 +62,7 @@ body {
     border-radius: 7px;
     background: #ccc;
 }
-.panel a:hover {
+.panel a.settings:hover {
     color: #333;
     background: #fff;
 }
@@ -107,4 +107,20 @@ body {
 }
 .panel ul#bus_stops li:nth-child(odd) {
     background: #036;
+}
+ul#stop_links {
+    text-align: center;
+}
+ul#stop_links li {
+    display: inline;
+}
+ul#stop_links li a {
+    color: #666;
+    text-decoration: none;
+    padding: 5px;
+    font-size: 1.25em;
+}
+ul#stop_links li a.active,
+ul#stop_links li a:hover {
+    color: #fff;
 }

@@ -97,13 +97,40 @@ $(function() {
     
     var display_stops = function(bus_stops) {
         $('#back ul#bus_stops li').remove();
+        $('ul#stop_links li').remove();
         if ( bus_stops ) {
             for ( var i = 0; i < bus_stops.length; i++ ) {
                 var stop = bus_stops[i];
+                var active = (current_stop.name == stop.name);
                 $('#back ul#bus_stops').append($('<li></li>').text(stop.name));
+                $('ul#stop_links').append(
+                    $('<li></li>').append(
+                        $('<a>&#149;</a>')
+                            .attr('href', stop.name)
+                            .addClass(active? 'active' : '')
+                    )
+                );
             }
         }
     };
+    
+    var display_stop = function(name) {
+        bus_stops = get_bus_stops();
+        for ( var i = 0; i < bus_stops.length; i++ ) {
+            var stop = bus_stops[i];
+            if ( stop.name == name ) {
+                current_stop = stop;
+                current_stop.update();
+            }
+        }
+        display_stops(bus_stops);
+    }
+    
+    $('ul#stop_links li a').live('click', function(event) {
+        event.preventDefault();
+        var name = $(this).attr('href');
+        display_stop(name);
+    });
     
     $('#front a.settings').click(function(event) {
         event.preventDefault();
@@ -116,13 +143,16 @@ $(function() {
         current_stop = bus_stop($('#front .details'), name);
         current_stop.save();
         current_stop.update();
+        bus_stops = get_bus_stops();
+        display_stops(bus_stops);
         flip('#back', '#front');
     });
     
-    var bus_stops = get_bus_stops();
-    display_stops(bus_stops);
     
+    
+    var bus_stops = get_bus_stops();
     var current_stop = bus_stops? bus_stops[0] : null;
+    display_stops(bus_stops);
     
     if ( current_stop != null ) {
         current_stop.update();
