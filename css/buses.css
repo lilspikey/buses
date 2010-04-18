@@ -73,7 +73,7 @@ body {
 .panel h1,
 .panel h2 {
     margin: 0 5px 0 0;
-    padding: 5px;
+    padding: 5px 20px 5px 5px;
     font-size: 2em;
 }
 .panel .loading h1 {
