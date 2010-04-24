@@ -19,6 +19,10 @@ var Paged = {
             return _paged_element_width;
         }
         
+        var set_internal_pages_left = function(left) {
+            internal_pages.offset({ left: left, top: 0 });
+        }
+        
         var prev_mouse_x = 0
             prev_moved_x = 0,
             initial_mouse_x = 0,
@@ -32,7 +36,7 @@ var Paged = {
                 event.preventDefault();
                 var dx = event.pageX - initial_mouse_x;
                 var left =  initial_left + dx;
-                internal_pages.offset({ left: left, top: 0 });
+                set_internal_pages_left(left);
                 var time = new Date().getTime();
                 prev_moved_x = (event.pageX - prev_mouse_x);
                 prev_mouse_x = event.pageX;
@@ -182,7 +186,7 @@ var Paged = {
                         }
                     }
                     if ( this._current_left != left ) {
-                        internal_pages.offset({ left: left, top: 0 });
+                        set_internal_pages_left(left);
                         this._current_left = left;
                         return true;
                     }
@@ -211,7 +215,7 @@ var Paged = {
                 if ( current != this._current ) {
                     this._current = current;
                     var left = paged_element.offset().left - (this._current * paged_element_width());
-                    internal_pages.offset({ left: left, top: 0 });
+                    set_internal_pages_left(left);
                     speed_x = 0;
                     this._stop_ticking();
                     this._shown_callback(page_id);
