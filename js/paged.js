@@ -43,12 +43,11 @@ var Paged = {
             prev_time = new Date().getTime();
             prev_duration = 0;
             prev_moved_x = 0;
-        }).mouseup(function(event) {
+        }).bind('mouseup mouseleave mouseout', function(event) {
             mouse_down = false;
             var time = new Date().getTime();
             var dt = Math.max(1, prev_duration + (time - prev_time))/1000.0;
             speed_x = prev_moved_x/dt;
-            console.log(speed_x);
             paged._start_ticking();
         });
         
@@ -96,7 +95,6 @@ var Paged = {
                     if ( Math.abs(speed_x) > 40 ) {
                         var target_page = this._current + (speed_x < 0? 1 : -1);
                         if ( 0 <= target_page && target_page < (this._pages.length) ) {
-                            console.log('target_page:' + target_page);
                             var target_left = paged_element.offset().left - (target_page * paged_element.width());
                         
                             left += (dt*speed_x);
@@ -116,13 +114,11 @@ var Paged = {
                     }
                     if ( !changing_page ) {
                         var target_left = paged_element.offset().left - (this._current * paged_element.width());
-                        console.log('target_left ', target_left);
                         if ( target_left != internal_pages.offset().left ) {
                             var dx = target_left - internal_pages.offset().left;
                             if ( Math.abs(dx) > 1 ) {
                                 var speed = Math.min(1000*dt, Math.abs(dx));
                                 speed *= (dx < 0)? -1 : 1;
-                                console.log(speed);
                                 left += speed;
                             }
                             else {
@@ -138,8 +134,7 @@ var Paged = {
                         // finished moving, so can update current page
                         this._current = current;
                         var page_id = this._pages[current];
-                        console.log('showing page: ' + page_id);
-//                        this._shown_callback
+                        this._shown_callback(page_id);
                     }
                 }
                 return false;
