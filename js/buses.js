@@ -80,7 +80,9 @@ $(function() {
         var bus_stops = [];
         if ( names ) {
             for ( var i = 0; i < names.length; i++ ) {
-                bus_stops.push(bus_stop($('#front .details'), names[i]));
+                var name = names[i];
+                var page = paged.add_page(name);
+                bus_stops.push(bus_stop(page, name));
             }
         }
         return bus_stops;
@@ -97,6 +99,12 @@ $(function() {
             store.setItem('bus_stops', names.join(' '));
         }
     }
+    
+    var paged = Paged.make_paged($('#paged'));
+    paged.shown(function(page_id) {
+        console.log(page_id);
+        display_stop(page_id);
+    });
     
     var display_stops = function(bus_stops) {
         $('#back ul#bus_stops li').remove();

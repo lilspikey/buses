@@ -37,6 +37,9 @@ body {
     -webkit-transform-style: preserves-3d;
     z-index: 1;
 }
+.panel #paged {
+    height: 90%;
+}
 
 .panel.hidden {
     -webkit-transform: rotateY(180deg);

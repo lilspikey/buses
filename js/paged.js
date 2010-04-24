@@ -10,8 +10,7 @@ var Paged = {
                                                     margin: 0,
                                                     left: 0, top: 0});
         paged_element.css({ position: 'relative',
-                            overflow: 'hidden',
-                            background: 'yellow'})
+                            overflow: 'hidden'})
                      .html('')
                      .append(internal_pages);
         
@@ -25,6 +24,7 @@ var Paged = {
             speed_x = 0;
         paged_element.mousemove(function(event) {
             if ( mouse_down ) {
+                event.preventDefault();
                 var dx = event.pageX - initial_mouse_x;
                 var left =  initial_left + dx;
                 internal_pages.offset({ left: left, top: 0 });
@@ -35,6 +35,7 @@ var Paged = {
                 prev_time = time;
             }
         }).mousedown(function(event) {
+            event.preventDefault();
             initial_mouse_x = event.pageX;
             prev_mouse_x = initial_mouse_x;
             initial_left = internal_pages.offset().left;
@@ -44,11 +45,14 @@ var Paged = {
             prev_duration = 0;
             prev_moved_x = 0;
         }).bind('mouseup mouseleave mouseout', function(event) {
-            mouse_down = false;
-            var time = new Date().getTime();
-            var dt = Math.max(1, prev_duration + (time - prev_time))/1000.0;
-            speed_x = prev_moved_x/dt;
-            paged._start_ticking();
+            if ( mouse_down ) {
+                event.preventDefault();
+                mouse_down = false;
+                var time = new Date().getTime();
+                var dt = Math.max(1, prev_duration + (time - prev_time))/1000.0;
+                speed_x = prev_moved_x/dt;
+                paged._start_ticking();
+            }
         });
         
         var paged = {
@@ -57,6 +61,7 @@ var Paged = {
             _shown_callback: null,
             _current: 0,
             _tick_interval_id: null,
+            _current_left: 0,
             
             _update_page_positions: function() {
                 var left = 0;
@@ -89,27 +94,28 @@ var Paged = {
             _tick: function(dt) {
                 // move to page in relevant direction at the given speed
                 if ( !mouse_down ) {
-                    var left = internal_pages.offset().left;
+                    var left = this._current_left;
                     var current = this._current;
                     var changing_page = false;
                     if ( Math.abs(speed_x) > 40 ) {
                         var target_page = this._current + (speed_x < 0? 1 : -1);
                         if ( 0 <= target_page && target_page < (this._pages.length) ) {
                             var target_left = paged_element.offset().left - (target_page * paged_element.width());
-                        
+                            target_left = Math.round(target_left);
+                            console.log('target_left ',target_left);
                             left += (dt*speed_x);
+                            console.log(left);
                             if ( speed_x > 0 ) {
                                 left = Math.min(left, target_left);
                             }
                             else {
                                 left = Math.max(left, target_left);
                             }
+                            console.log(left);
+                            console.log('---');
                         
                             current = target_page;
                             changing_page = true;
-                        }
-                        else {
-                            speed_x = 0;
                         }
                     }
                     if ( !changing_page ) {
@@ -126,8 +132,11 @@ var Paged = {
                             }
                         }
                     }
-                    if ( Math.round(internal_pages.offset().left) != Math.round(left) ) {
+                    console.log(Math.round(internal_pages.offset().left) + '!=' + Math.round(left))
+                    if ( this._current_left != left ) {
+                        console.log(left);
                         internal_pages.offset({ left: left, top: 0 });
+                        this._current_left = left;
                         return true;
                     }
                     else if ( current != this._current ) {
@@ -145,17 +154,21 @@ var Paged = {
             },
             
             show: function(page_id) {
-                
+                this._shown_callback(page_id);
             },
             
             add_page: function(page_id) {
+                var existing = this._page_elements[page_id];
+                if ( existing ) {
+                    return existing;
+                }
+                
                 var page = $(prototype_html).css({
                     position: 'absolute',
                     top: 0,
                     height: '100%',
                     padding: 0,
-                    margin: 0,
-                    background: 'blue'
+                    margin: 0
                 }).width(paged_element.width());
                 internal_pages.append(page);
                 
@@ -173,7 +186,7 @@ var Paged = {
     
 };
 
-$(function() { 
+/*$(function() { 
     var paged = Paged.make_paged($('#pages'));
     
     paged.shown(function(page_id) {
@@ -183,4 +196,4 @@ $(function() {
     paged.add_page('id2');
     
     paged.show('id1');
-});
+});*/
