@@ -14,6 +14,11 @@ var Paged = {
                      .html('')
                      .append(internal_pages);
         
+        var _paged_element_width = paged_element.width();
+        var paged_element_width = function() {
+            return _paged_element_width;
+        }
+        
         var prev_mouse_x = 0
             prev_moved_x = 0,
             initial_mouse_x = 0,
@@ -59,7 +64,7 @@ var Paged = {
             _pages: [],
             _page_elements: {},
             _shown_callback: null,
-            _current: 0,
+            _current: null,
             _tick_interval_id: null,
             _current_left: 0,
             
@@ -69,7 +74,7 @@ var Paged = {
                     var page_id = this._pages[i];
                     var page_element = this._page_elements[page_id];
                     page_element.css('left', left);
-                    left += paged_element.width();
+                    left += paged_element_width();
                 }
                 internal_pages.width(left);
             },
@@ -100,26 +105,23 @@ var Paged = {
                     if ( Math.abs(speed_x) > 40 ) {
                         var target_page = this._current + (speed_x < 0? 1 : -1);
                         if ( 0 <= target_page && target_page < (this._pages.length) ) {
-                            var target_left = paged_element.offset().left - (target_page * paged_element.width());
+                            var target_left = paged_element.offset().left - (target_page * paged_element_width());
                             target_left = Math.round(target_left);
-                            console.log('target_left ',target_left);
+                            
                             left += (dt*speed_x);
-                            console.log(left);
                             if ( speed_x > 0 ) {
                                 left = Math.min(left, target_left);
                             }
                             else {
                                 left = Math.max(left, target_left);
                             }
-                            console.log(left);
-                            console.log('---');
                         
                             current = target_page;
                             changing_page = true;
                         }
                     }
                     if ( !changing_page ) {
-                        var target_left = paged_element.offset().left - (this._current * paged_element.width());
+                        var target_left = paged_element.offset().left - (this._current * paged_element_width());
                         if ( target_left != internal_pages.offset().left ) {
                             var dx = target_left - internal_pages.offset().left;
                             if ( Math.abs(dx) > 1 ) {
@@ -132,9 +134,7 @@ var Paged = {
                             }
                         }
                     }
-                    console.log(Math.round(internal_pages.offset().left) + '!=' + Math.round(left))
                     if ( this._current_left != left ) {
-                        console.log(left);
                         internal_pages.offset({ left: left, top: 0 });
                         this._current_left = left;
                         return true;
@@ -154,7 +154,21 @@ var Paged = {
             },
             
             show: function(page_id) {
-                this._shown_callback(page_id);
+                var current = 0;
+                for ( var i = 0; i < this._pages.length; i++ ) {
+                    if ( this._pages[i] == page_id ) {
+                        current = i;
+                        break;
+                    }
+                }
+                if ( current != this._current ) {
+                    this._current = current;
+                    var left = paged_element.offset().left - (this._current * paged_element_width());
+                    internal_pages.offset({ left: left, top: 0 });
+                    speed_x = 0;
+                    this._stop_ticking();
+                    this._shown_callback(page_id);
+                }
             },
             
             add_page: function(page_id) {
@@ -162,14 +176,14 @@ var Paged = {
                 if ( existing ) {
                     return existing;
                 }
-                
+
                 var page = $(prototype_html).css({
                     position: 'absolute',
                     top: 0,
                     height: '100%',
                     padding: 0,
                     margin: 0
-                }).width(paged_element.width());
+                }).width(paged_element_width());
                 internal_pages.append(page);
                 
                 this._pages.push(page_id);

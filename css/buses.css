@@ -39,6 +39,7 @@ body {
 }
 .panel #paged {
     height: 90%;
+    width: 100%;
 }
 
 .panel.hidden {

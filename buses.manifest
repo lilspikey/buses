@@ -1,12 +1,13 @@
 CACHE MANIFEST
 
-# version 1.0.1
+# version 1.0.2
 
 CACHE:
 css/buses.css
 
 js/jquery-1.4.2.min.js
 js/buses.js
+js/paged.js
 
 img/loading.gif
 img/buses-touch-icon.png
