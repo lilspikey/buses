@@ -1,7 +1,7 @@
 var Paged = {
     
     make_paged: function(paged_element) {
-        var DT_MILLIS = 40;
+        var DT_MILLIS = 50;
         
         var prototype_html = paged_element.html();
         var internal_pages = $('<div></div>').css({ position: 'absolute',
@@ -19,8 +19,28 @@ var Paged = {
             return _paged_element_width;
         }
         
+        var force_repaint = function(element) {
+            // http://mir.aculo.us/2009/09/25/force-redraw-dom-technique-for-webkit-based-browsers/
+            var dom_element = element.get(0);
+            if ( !dom_element.style.webkitTransform ) {
+                dom_element.style.webkitTransform = 'scale(1)';
+            }
+            else {
+                dom_element.style.webkitTransform = '';
+            }
+        }
+        
+        var _internal_pages_left = 0;
+        var get_internal_pages_left = function() {
+            return _internal_pages_left;
+        }
+        
         var set_internal_pages_left = function(left) {
-            internal_pages.offset({ left: left, top: 0 });
+            _internal_pages_left = left;
+            internal_pages.css('left', left + 'px');
+            
+            // TODO make this configurable
+            force_repaint($('#content'));
         }
         
         var prev_mouse_x = 0
@@ -47,7 +67,7 @@ var Paged = {
             event.preventDefault();
             initial_mouse_x = event.pageX;
             prev_mouse_x = initial_mouse_x;
-            initial_left = internal_pages.offset().left;
+            initial_left = get_internal_pages_left();
             mouse_down = true;
             speed_x = 0;
             prev_time = new Date().getTime();
@@ -68,7 +88,6 @@ var Paged = {
         function handleTouchEvent(event) {
             /* from http://jasonkuhn.net/mobile/jqui/js/jquery.iphoneui.js
              but changed a bit*/
-
             var touches = event.changedTouches;
             var first = touches[0];
             var type = '';
@@ -102,8 +121,6 @@ var Paged = {
             simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0/*left*/, null);
 
             first.target.dispatchEvent(simulatedEvent);
-            
-            
         }
         var paged_element_dom = paged_element.get(0);
         paged_element_dom.addEventListener("touchstart", handleTouchEvent, true);
@@ -153,7 +170,7 @@ var Paged = {
                     var left = this._current_left;
                     var current = this._current;
                     var changing_page = false;
-                    if ( Math.abs(speed_x) > 40 ) {
+                    if ( Math.abs(speed_x) > 1 ) {
                         var target_page = this._current + (speed_x < 0? 1 : -1);
                         if ( 0 <= target_page && target_page < (this._pages.length) ) {
                             var target_left = paged_element.offset().left - (target_page * paged_element_width());
@@ -173,8 +190,8 @@ var Paged = {
                     }
                     if ( !changing_page ) {
                         var target_left = paged_element.offset().left - (this._current * paged_element_width());
-                        if ( target_left != internal_pages.offset().left ) {
-                            var dx = target_left - internal_pages.offset().left;
+                        if ( target_left != get_internal_pages_left() ) {
+                            var dx = target_left - get_internal_pages_left();
                             if ( Math.abs(dx) > 1 ) {
                                 var speed = Math.min(1000*dt, Math.abs(dx));
                                 speed *= (dx < 0)? -1 : 1;
