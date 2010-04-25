@@ -56,7 +56,7 @@ var Paged = {
                 event.preventDefault();
                 var dx = event.pageX - initial_mouse_x;
                 var left =  initial_left + dx;
-                set_internal_pages_left(left);
+                //set_internal_pages_left(left);
                 var time = new Date().getTime();
                 prev_moved_x = (event.pageX - prev_mouse_x);
                 prev_mouse_x = event.pageX;
@@ -176,20 +176,22 @@ var Paged = {
                             var target_left = paged_element.offset().left - (target_page * paged_element_width());
                             target_left = Math.round(target_left);
                             
-                            left += (dt*speed_x);
+                            /*left += (dt*speed_x);
                             if ( speed_x > 0 ) {
                                 left = Math.min(left, target_left);
                             }
                             else {
                                 left = Math.max(left, target_left);
-                            }
+                            }*/
+                            
+                            left=target_left;
                         
                             current = target_page;
                             changing_page = true;
                         }
                     }
                     if ( !changing_page ) {
-                        var target_left = paged_element.offset().left - (this._current * paged_element_width());
+                        /*var target_left = paged_element.offset().left - (this._current * paged_element_width());
                         if ( target_left != get_internal_pages_left() ) {
                             var dx = target_left - get_internal_pages_left();
                             if ( Math.abs(dx) > 1 ) {
@@ -200,7 +202,7 @@ var Paged = {
                             else {
                                 left = target_left;
                             }
-                        }
+                        }*/
                     }
                     if ( this._current_left != left ) {
                         set_internal_pages_left(left);
