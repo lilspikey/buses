@@ -225,4 +225,9 @@ $(function() {
         flip('#front', '#back');
     }
 
+    setInterval(function() {
+        if ( _current_stop ) {
+            _current_stop.update();
+        }
+    }, 30*1000);
 });
