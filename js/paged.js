@@ -19,17 +19,6 @@ var Paged = {
             return _paged_element_width;
         }
         
-        var force_repaint = function(element) {
-            // http://mir.aculo.us/2009/09/25/force-redraw-dom-technique-for-webkit-based-browsers/
-            var dom_element = element.get(0);
-            if ( !dom_element.style.webkitTransform ) {
-                dom_element.style.webkitTransform = 'scale(1)';
-            }
-            else {
-                dom_element.style.webkitTransform = '';
-            }
-        }
-        
         var _internal_pages_left = 0;
         var get_internal_pages_left = function() {
             return _internal_pages_left;
@@ -38,48 +27,29 @@ var Paged = {
         var set_internal_pages_left = function(left) {
             _internal_pages_left = left;
             internal_pages.css('left', left + 'px');
-            
-            // TODO make this configurable
-            force_repaint($('#content'));
         }
         
-        var prev_mouse_x = 0
-            prev_moved_x = 0,
-            initial_mouse_x = 0,
-            initial_left = 0,
-            mouse_down = false,
+        var prev_x = 0,
             prev_time = 0,
-            prev_duration = 0,
+            mouse_down = false,
             speed_x = 0;
         paged_element.mousemove(function(event) {
             if ( mouse_down ) {
                 event.preventDefault();
-                var dx = event.pageX - initial_mouse_x;
-                var left =  initial_left + dx;
-                //set_internal_pages_left(left);
-                var time = new Date().getTime();
-                prev_moved_x = (event.pageX - prev_mouse_x);
-                prev_mouse_x = event.pageX;
-                prev_duration = (time - prev_time)
-                prev_time = time;
             }
         }).mousedown(function(event) {
             event.preventDefault();
-            initial_mouse_x = event.pageX;
-            prev_mouse_x = initial_mouse_x;
-            initial_left = get_internal_pages_left();
-            mouse_down = true;
-            speed_x = 0;
+            prev_x = event.pageX;
             prev_time = new Date().getTime();
-            prev_duration = 0;
-            prev_moved_x = 0;
+            mouse_down = true;
         }).bind('mouseup mouseleave mouseout', function(event) {
             if ( mouse_down ) {
                 event.preventDefault();
                 mouse_down = false;
                 var time = new Date().getTime();
-                var dt = Math.max(1, prev_duration + (time - prev_time))/1000.0;
-                speed_x = prev_moved_x/dt;
+                var dt = Math.max(1, (time - prev_time))/1000.0;
+                var dx = event.pageX - prev_x;
+                speed_x = dx/dt;
                 paged._start_ticking();
             }
         });
@@ -176,33 +146,11 @@ var Paged = {
                             var target_left = paged_element.offset().left - (target_page * paged_element_width());
                             target_left = Math.round(target_left);
                             
-                            /*left += (dt*speed_x);
-                            if ( speed_x > 0 ) {
-                                left = Math.min(left, target_left);
-                            }
-                            else {
-                                left = Math.max(left, target_left);
-                            }*/
-                            
                             left=target_left;
                         
                             current = target_page;
                             changing_page = true;
                         }
-                    }
-                    if ( !changing_page ) {
-                        /*var target_left = paged_element.offset().left - (this._current * paged_element_width());
-                        if ( target_left != get_internal_pages_left() ) {
-                            var dx = target_left - get_internal_pages_left();
-                            if ( Math.abs(dx) > 1 ) {
-                                var speed = Math.min(1000*dt, Math.abs(dx));
-                                speed *= (dx < 0)? -1 : 1;
-                                left += speed;
-                            }
-                            else {
-                                left = target_left;
-                            }
-                        }*/
                     }
                     if ( this._current_left != left ) {
                         set_internal_pages_left(left);

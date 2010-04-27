@@ -7,6 +7,23 @@ $(function() {
         alert('Sorry no local storage available');
     };
     
+    if ( window.applicationCache ) {
+        var cache = window.applicationCache;
+        
+        var cacheUpdatereadyListener = function() {
+            cache.swapCache();
+            $('#status').text('update ready');
+            window.location.reload();
+        };
+        
+        var cacheErrorListener = function() {
+            $('#status').text('cache error');
+        };
+        
+        cache.addEventListener('updateready', cacheUpdatereadyListener, false);
+        cache.addEventListener('error', cacheErrorListener, false);
+    }
+    
     var flip = function(front, back) {
         $(back).show(function() { 
             $(back).removeClass('hidden');
@@ -181,4 +198,5 @@ $(function() {
     else {
         flip('#front', '#back');
     }
+
 });

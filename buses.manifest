@@ -1,8 +1,10 @@
 CACHE MANIFEST
 
-# version 1.0.4
+# version 1.0.10
 
 CACHE:
+index.html
+
 css/buses.css
 
 js/jquery-1.4.2.min.js
