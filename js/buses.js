@@ -123,8 +123,8 @@ $(function() {
         for ( var i = 0; i < bus_stops.length; i++ ) {
             var stop = bus_stops[i];
             if ( stop.name == page_id ) {
-                current_stop = stop;
-                current_stop.update();
+                set_current_stop(stop);
+                stop.update();
                 break;
             }
         }
@@ -135,6 +135,7 @@ $(function() {
         $('#back ul#bus_stops li').remove();
         $('ul#stop_links li').remove();
         if ( bus_stops ) {
+            var current_stop = get_current_stop();
             for ( var i = 0; i < bus_stops.length; i++ ) {
                 var stop = bus_stops[i];
                 var active = (current_stop.name == stop.name);
@@ -187,13 +188,38 @@ $(function() {
     });
     
     var bus_stops = get_bus_stops();
-    var current_stop = bus_stops? bus_stops[0] : null;
+    var _current_stop = null;
+    var set_current_stop = function(current_stop) {
+        _current_stop = current_stop;
+        var store = get_storage();
+        store.setItem('current_stop', current_stop.name);
+    }
+    var get_current_stop = function() {
+        if ( !_current_stop ) {
+            var store = get_storage();
+            var name = store.getItem('current_stop');
+            if ( name ) {
+                for ( var i = 0; i < bus_stops.length; i++ ) {
+                    if ( bus_stops[i].name == name ) {
+                        _current_stop = bus_stops[i];
+                        break;
+                    }
+                }
+            }
+            else {
+                _current_stop = bus_stops? bus_stops[0] : null;
+            }
+        }
+        return _current_stop;
+    }
     display_stops(bus_stops);
     
     $('#back').hide();
     
-    if ( current_stop != null ) {
-        current_stop.update();
+    _current_stop = get_current_stop();
+    if ( _current_stop != null ) {
+        _current_stop.update();
+        paged.show(_current_stop.name);
     }
     else {
         flip('#front', '#back');
