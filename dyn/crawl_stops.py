@@ -63,12 +63,14 @@ def main():
             stops_info = get_route_stops(route_id)
             stops = stops_info['stops']
             for stop in stops:
+                stop_id = stop['stopId']
                 stop_name = stop['stopName']
                 naptan_code = stop['naptanCode']
                 lat = stop['Lat']
                 lng = stop['Lng']
                 
-                print ' ', stop_name, naptan_code, lat, lng
+                print ' ', stop_id, stop_name, naptan_code, lat, lng
+                print ' ', service_id, route_id, stop_id
     
 
 if __name__ == '__main__':
