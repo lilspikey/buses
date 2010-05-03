@@ -37,6 +37,9 @@ def query_api(path, json):
 def get_service_info(service_id):
     return query_api('getServiceInfo', {'serviceid': service_id})
 
+def get_route_stops(route_id):
+    return query_api('getRouteStops', {'routeid': route_id})
+
 def get_service_ids():
     html = urllib2.urlopen('http://buses.co.uk/')
     soup = BeautifulSoup(html,convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -50,7 +53,22 @@ def main():
 
     for service_id in get_service_ids():
         service_info = get_service_info(service_id)
-        print service_info
+        service = service_info['service']
+        service_name = service['serviceName']
+        routes = service.get('routes', [])
+        for route in routes:
+            route_name = route['routeName']
+            route_id   = route['routeId']
+            print service_name, route_name, route_id
+            stops_info = get_route_stops(route_id)
+            stops = stops_info['stops']
+            for stop in stops:
+                stop_name = stop['stopName']
+                naptan_code = stop['naptanCode']
+                lat = stop['Lat']
+                lng = stop['Lng']
+                
+                print ' ', stop_name, naptan_code, lat, lng
     
 
 if __name__ == '__main__':
