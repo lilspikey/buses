@@ -5,8 +5,27 @@ import urllib2
 import simplejson
 import re
 import sqlite3 as db
+import os.path
 from BeautifulSoup import BeautifulSoup
 import time
+
+def with_db_cursor(fn):
+    def _decorated(*arg, **kw):
+        committed = False
+        current_dir = os.path.dirname(os.path.dirname(__file__))
+        db_file = os.path.join(current_dir, 'buses.db')
+        conn = db.connect(db_file)
+        try:
+            cursor = conn.cursor()
+            val = fn(cursor, *arg, **kw)
+            committed = True
+            conn.commit()
+            return val
+        finally:
+            if not committed:
+                conn.rollback()
+            conn.close()
+    return _decorated
 
 def rate_limit(fn):
     def _decorated(*arg, **kw):
@@ -48,7 +67,18 @@ def get_service_ids():
     ids = [int(o['value']) for o in options]
     return [i for i in ids if i > 0]
 
+@with_db_cursor
+def create_db(cursor):
+    try:
+        cursor.execute('create table service '
+                      '(service_id integer, service_name text, '
+                      'service_description text)')
+    except db.OperationalError:
+        print "service table exists already"
+
 def main():
+    create_db()
+    
     #print simplejson.dumps(query_api('getRouteStops', {'routeid':'60'}), indent=2)
 
     for service_id in get_service_ids():
