@@ -69,16 +69,23 @@ def get_service_ids():
 
 @with_db_cursor
 def create_db(cursor):
-    try:
-        cursor.execute('create table service '
-                      '(service_id integer, service_name text, '
-                      'service_description text)')
-    except db.OperationalError:
-        print "service table exists already"
+    statements = [
+        'create table if not exists service (id integer primary key, name text, description text)',
+        'create index if not exists service_name_index on service (name)',
+        'create table if not exists route (id integer primary key, name text)',
+        'create index if not exists route_name_index on route (name)',
+        'create table if not exists stop (id integer primary key, name text, naptan text unique, lat real, lng real)',
+        'create index if not exists stop_name_index on stop (name)',
+        'create index if not exists stop_lat_index on stop (lat)',
+        'create index if not exists stop_lng_index on stop (lng)',
+        'create index if not exists stop_lat_lng_index on stop (lat,lng)',
+    ]
+    for stmt in statements:
+        cursor.execute(stmt)
 
 def main():
     create_db()
-    
+    return
     #print simplejson.dumps(query_api('getRouteStops', {'routeid':'60'}), indent=2)
 
     for service_id in get_service_ids():
