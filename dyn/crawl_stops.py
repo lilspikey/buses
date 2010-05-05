@@ -72,43 +72,92 @@ def create_db(cursor):
     statements = [
         'create table if not exists service (id integer primary key, name text, description text)',
         'create index if not exists service_name_index on service (name)',
-        'create table if not exists route (id integer primary key, name text)',
+        'create table if not exists route (id integer primary key, service_id integer, name text)',
+        'create index if not exists route_service_id_index on route (service_id)',
         'create index if not exists route_name_index on route (name)',
         'create table if not exists stop (id integer primary key, name text, naptan text unique, lat real, lng real)',
         'create index if not exists stop_name_index on stop (name)',
         'create index if not exists stop_lat_index on stop (lat)',
         'create index if not exists stop_lng_index on stop (lng)',
         'create index if not exists stop_lat_lng_index on stop (lat,lng)',
+        'create table if not exists route_stop (route_id integer, stop_id integer, unique(route_id, stop_id))',
     ]
     for stmt in statements:
         cursor.execute(stmt)
 
-def main():
-    create_db()
-    return
-    #print simplejson.dumps(query_api('getRouteStops', {'routeid':'60'}), indent=2)
+@with_db_cursor
+def insert_services(cursor, services_with_routes):
+    services = [(id, name, description) for (id, name, description, _) in services_with_routes]
+    cursor.executemany('insert or replace into service (id, name, description) values(?,?,?)', services)
 
+@with_db_cursor
+def insert_routes(cursor, routes):
+    cursor.executemany('insert or replace into route (id, service_id, name) values(?,?,?)', routes)
+
+@with_db_cursor
+def insert_stops(cursor, stops):
+    cursor.executemany('insert or replace into stop (id, name, naptan, lat, lng) values(?,?,?,?,?)', stops)
+
+@with_db_cursor
+def insert_stop_route_m2m(cursor, m2m):
+    cursor.executemany('insert or replace into route_stop (route_id, stop_id) values(?,?)', m2m)
+
+def extract_routes_from_services(services_with_routes):
+    for service_id, _, _, service_routes in services_with_routes:
+        for route_id, route_name in service_routes:
+            yield route_id, service_id, route_name
+
+def retrieve_services():
     for service_id in get_service_ids():
         service_info = get_service_info(service_id)
         service = service_info['service']
         service_name = service['serviceName']
+        service_description = service['serviceDescription']
         routes = service.get('routes', [])
-        for route in routes:
-            route_name = route['routeName']
-            route_id   = route['routeId']
-            print service_name, route_name, route_id
-            stops_info = get_route_stops(route_id)
-            stops = stops_info['stops']
-            for stop in stops:
-                stop_id = stop['stopId']
-                stop_name = stop['stopName']
-                naptan_code = stop['naptanCode']
-                lat = stop['Lat']
-                lng = stop['Lng']
-                
-                print ' ', stop_id, stop_name, naptan_code, lat, lng
-                print ' ', service_id, route_id, stop_id
+        routes = [(route['routeId'], route['routeName']) for route in routes]
+        print 'Service %s' % service_name
+        yield service_id, service_name, service_description, routes
+
+def retrieve_stops_for_routes(routes):
+    for route_id, service_id, route_name in routes:
+        print 'Stops for route %s' % route_name
+        stops_info = get_route_stops(route_id)
+        stops = stops_info['stops']
+        for stop in stops:
+            stop_id = stop['stopId']
+            stop_name = stop['stopName']
+            naptan_code = stop['naptanCode']
+            lat = stop['Lat']
+            lng = stop['Lng']
+            
+            yield route_id, stop_id, stop_name, naptan_code, lat, lng
+
+def extract_stops_and_m2m(stops_for_routes):
+    stops = [(stop_id, stop_name, naptan_code, lat, lng) for (_, stop_id, stop_name, naptan_code, lat, lng) in stops_for_routes]
+    m2m = [(route_id, stop_id) for (route_id, stop_id, _, _, _, _) in stops_for_routes]
     
+    return set(stops), m2m
+
+
+def main():
+    create_db()
+    
+    services = list(retrieve_services())
+    print "Inserting %s services" % len(services)
+    insert_services(services)
+    
+    routes = list(extract_routes_from_services(services))
+    print "Inserting %s routes" % len(routes)
+    insert_routes(routes)
+    
+    stops_for_routes = list(retrieve_stops_for_routes(routes))
+    stops, m2m = extract_stops_and_m2m(stops_for_routes)
+    
+    print "Inserting %s stops" % len(stops)
+    insert_stops(stops)
+    
+    print "Inserting %s route/stops" % len(m2m)
+    insert_stop_route_m2m(m2m)
 
 if __name__ == '__main__':
     main()
