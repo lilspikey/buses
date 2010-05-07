@@ -6,3 +6,6 @@ RewriteCond %{REQUEST_URI} !^.*/times.py$
 RewriteCond %{REQUEST_URI} ^(.*)/times/(.*)$
 RewriteRule ^.*$ %1/times.py?stop=%2 [L]
 
+RewriteCond %{REQUEST_URI} ^(.*)/search$
+RewriteRule ^.*$ %1/search.py [L]
+

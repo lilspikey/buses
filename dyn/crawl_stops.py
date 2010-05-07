@@ -12,7 +12,7 @@ import time
 def with_db_cursor(fn):
     def _decorated(*arg, **kw):
         committed = False
-        current_dir = os.path.dirname(os.path.dirname(__file__))
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         db_file = os.path.join(current_dir, 'buses.db')
         conn = db.connect(db_file)
         try:
@@ -77,6 +77,7 @@ def create_db(cursor):
         'create index if not exists route_name_index on route (name)',
         'create table if not exists stop (id integer primary key, name text, naptan text unique, lat real, lng real)',
         'create index if not exists stop_name_index on stop (name)',
+        'create index if not exists stop_naptan_index on stop (naptan)',
         'create index if not exists stop_lat_index on stop (lat)',
         'create index if not exists stop_lng_index on stop (lng)',
         'create index if not exists stop_lat_lng_index on stop (lat,lng)',
