@@ -27,7 +27,7 @@ def find_stops(q=None):
     try:
         cursor = conn.cursor()
         
-        sql = 'select name, naptan from stop'
+        sql = 'select distinct name from stop'
         sql_params = []
         clauses = []
         
@@ -42,8 +42,8 @@ def find_stops(q=None):
         sql += ' order by name asc limit 30'
         
         stops = cursor.execute(sql, sql_params)
-        for name, naptan in stops:
-            yield name, naptan
+        for (name,) in stops:
+            yield name
     finally:
         conn.close()
 
@@ -54,7 +54,7 @@ def main():
     
     stops = find_stops(q=q)
     
-    stops = [dict(name=name, naptan=naptan) for (name, naptan) in stops]
+    stops = [name for name in stops]
     
     write_output(simplejson.dumps(stops))
 
