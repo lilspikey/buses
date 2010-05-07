@@ -39,7 +39,7 @@ def find_stops(q=None):
         if clauses:
             sql += (' where %s' % (' and '.join(clauses)))
         
-        sql += ' limit 15'
+        sql += ' order by name asc limit 30'
         
         stops = cursor.execute(sql, sql_params)
         for name, naptan in stops:
