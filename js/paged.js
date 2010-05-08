@@ -210,6 +210,21 @@ var Paged = {
                 this._update_page_positions();
                 
                 return page;
+            },
+            
+            remove_page: function(page_id) {
+                var existing = this._page_elements[page_id];
+                if ( !existing ) {
+                    return;
+                }
+                
+                existing.remove();
+                
+                this._pages = $.grep(this._pages, function(n, i) {
+                    return (n != page_id);
+                });
+                
+                delete this._page_elements[page_id];
             }
         }
         

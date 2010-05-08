@@ -138,6 +138,21 @@ ul#stop_links li a.active,
 ul#stop_links li a:hover {
     color: #fff;
 }
+ul#bus_stops li {
+    padding-right: 2em;
+    position: relative;
+}
 ul#bus_stops li a {
     color: #fff;
+}
+
+ul#bus_stops li a.delete {
+    font-size: 1.5em;
+    padding: 0;
+    margin: 0;
+    display: block;
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    color: #ccc;
 }

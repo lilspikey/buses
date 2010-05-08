@@ -110,15 +110,32 @@ $(function() {
         return bus_stops;
     };
     
+    var serialize_array = function(arr) {
+        arr = $.map(arr, function(n, i) {
+            return escape(n);
+        });
+        return arr.join(' ');
+    }
+    
     var add_bus_stop = function(name) {
         var store = get_storage();
         var names = _get_names()
         if ( $.inArray(name, names) < 0 ) {
             names.push(name);
-            for ( var i = 0; i < names.length; i++ ) {
-                names[i] = escape(names[i]);
-            }
-            store.setItem('bus_stops', names.join(' '));
+            store.setItem('bus_stops', serialize_array(names));
+        }
+    }
+    
+    var remove_bus_stop = function(name) {
+        var store = get_storage();
+        var names = _get_names()
+        names = $.grep(names, function(n, i) {
+            return (n != name);
+        });
+        store.setItem('bus_stops', serialize_array(names));
+        
+        if ( _current_stop.name == name ) {
+            _current_stop = null;
         }
     }
     
@@ -143,12 +160,15 @@ $(function() {
             var current_stop = get_current_stop();
             for ( var i = 0; i < bus_stops.length; i++ ) {
                 var stop = bus_stops[i];
-                var active = (current_stop.name == stop.name);
+                var active = ((current_stop == null && i == 0) || current_stop.name == stop.name);
                 $('#back ul#bus_stops')
                     .append(
                         $('<li></li>').append(
-                            $('<a></a>')
+                            $('<a class="view"></a>')
                                 .text(stop.name)
+                                .attr('href', stop.name)
+                        ).append(
+                            $('<a class="delete">[x]</a>')
                                 .attr('href', stop.name)
                         )
                     );
@@ -170,11 +190,22 @@ $(function() {
         paged.show(name);
     });
     
-    $('ul#bus_stops li a').live('click', function(event) {
+    $('ul#bus_stops li a.view').live('click', function(event) {
         event.preventDefault();
         var name = $(this).attr('href');
         paged.show(name);
         flip('#back', '#front');
+    });
+    
+    $('ul#bus_stops li a.delete').live('click', function(event) {
+        event.preventDefault();
+        var name = $(this).attr('href');
+        if ( confirm('Remove: ' + name + '?') ) {
+            remove_bus_stop(name);
+            bus_stops = get_bus_stops();
+            paged.remove_page(name);
+            display_stops(bus_stops);
+        }
     });
     
     $('#front .settings a').live('click', function(event) {
@@ -203,17 +234,13 @@ $(function() {
         if ( !_current_stop ) {
             var store = get_storage();
             var name = store.getItem('current_stop');
-            if ( name ) {
-                for ( var i = 0; i < bus_stops.length; i++ ) {
-                    if ( bus_stops[i].name == name ) {
-                        _current_stop = bus_stops[i];
-                        break;
-                    }
+            for ( var i = 0; i < bus_stops.length; i++ ) {
+                if ( bus_stops[i].name == name ) {
+                    _current_stop = bus_stops[i];
+                    return _current_stop;
                 }
             }
-            else {
-                _current_stop = bus_stops? bus_stops[0] : null;
-            }
+            _current_stop = bus_stops? bus_stops[0] : null;
         }
         return _current_stop;
     }
