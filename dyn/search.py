@@ -16,7 +16,7 @@ def write_output(output):
 
 def escape_glob(glob):
     import re
-    return re.sub(r'([\\*])', r'\\\1', glob)
+    return re.sub(r'([\\\[\]?*])', r'\\\1', glob)
 
 def find_stops(q=None):
     
