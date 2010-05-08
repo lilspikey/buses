@@ -8,10 +8,28 @@ import cgi
 import cgitb
 cgitb.enable()
 
+import os.path
+import sqlite3 as db
+
 def write_output(output):
     print "Content: text/javascript"
     print
     print output
+
+def does_stop_exist(stop):
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    db_file = os.path.join(current_dir, 'buses.db')
+
+    conn = db.connect(db_file)
+    try:
+        cursor = conn.cursor()
+
+        sql = 'select name from stop where name = ?'
+        
+        return cursor.execute(sql, (stop,)).fetchone() is not None
+    finally:
+        conn.close()
 
 def create_json(stop, times):
     json = { 'name': stop, 'times': times }
@@ -20,6 +38,11 @@ def create_json(stop, times):
 def main():
     form = cgi.FieldStorage()
     stop = form.getfirst('stop','')
+    
+    if not does_stop_exist(stop):
+        json = { 'error': 'Unknown stop' }
+        return write_output(simplejson.dumps(json))
+    
     qs = urllib.urlencode({'stName': stop,
                            'allLines': 'y',
                            'nRows': '6',
