@@ -51,20 +51,25 @@ $(function() {
                     dataType: 'json',
                     success: function(result) {
                         if ( result ) {
-                            self.element.find('.stopname').text(result.name);
-                            var tbody = self.element.find('.timetable tbody');
-                            tbody.find('tr').each(function(i) {
-                                var row = $(this);
-                                if ( i >= result.times.length ) {
-                                    row.find('td').html('&nbsp;');
-                                }
-                                else {
-                                    var time = result.times[i];
-                                    row.find('td.route').text(time.route);
-                                    row.find('td.destination').text(time.destination);
-                                    row.find('td.departure').text(time.departure);
-                                }
-                            });
+                            if ( result.error ) {
+                                self.element.find('.stop_status').text(result.error);
+                            }
+                            else {
+                                self.element.find('.stopname').text(result.name);
+                                var tbody = self.element.find('.timetable tbody');
+                                tbody.find('tr').each(function(i) {
+                                    var row = $(this);
+                                    if ( i >= result.times.length ) {
+                                        row.find('td').html('&nbsp;');
+                                    }
+                                    else {
+                                        var time = result.times[i];
+                                        row.find('td.route').text(time.route);
+                                        row.find('td.destination').text(time.destination);
+                                        row.find('td.departure').text(time.departure);
+                                    }
+                                });
+                            }
                         }
                         self.element.removeClass('loading');
                     },

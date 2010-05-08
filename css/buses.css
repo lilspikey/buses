@@ -119,6 +119,9 @@ body {
 .panel ul#bus_stops li:nth-child(odd) {
     background: #036;
 }
+.stop_status {
+    text-align: center;
+}
 ul#stop_links {
     text-align: center;
 }
