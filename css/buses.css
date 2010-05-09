@@ -156,3 +156,24 @@ ul#bus_stops li a.delete {
     bottom: 3px;
     color: #ccc;
 }
+
+#stops_found ul {
+    margin-top: 2px;
+    background: #003;
+    border: 1px solid #039;
+    float: left;
+}
+#stops_found li {
+    padding: 5px;
+}
+#stops_found li form {
+    padding: 0;
+    margin: 0;
+}
+#stops_found li button {
+    background: none;
+    border: none;
+    font-size: 1em;
+    color: #fff;
+    cursor: pointer;
+}

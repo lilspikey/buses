@@ -213,15 +213,56 @@ $(function() {
         flip('#front', '#back');
     });
     
-    $('#back form.add_stop').submit(function(event) {
+    $('#back form.stop_search').submit(function(event) {
         event.preventDefault();
-        var name = $('#back form.add_stop input[name=stop_name]').val();
+    });
+    
+    $('#back form.add_stop').live('submit', function(event) {
+        event.preventDefault();
+        var name = $(this).find('input[name=stop_name]').val();
         var page = paged.add_page(name);
         var stop = bus_stop(page, name);
         stop.save();
+        $('#id_stop_name').val('');
+        $('#stops_found').html('');
         paged.show(name);
         flip('#back', '#front');
     });
+    
+    var current_search_id = null;
+    $('#id_stop_name').live('keyup', function(event) {
+        if ( current_search_id ) {
+            clearTimeout(current_search_id);
+            current_search_id = null;
+        }
+        var search = $('#id_stop_name').val();
+        current_search_id = setTimeout(function() {
+            $.ajax({
+                url: 'dyn/search?q=' + escape(search),
+                cache: false,
+                dataType: 'json',
+                success: function(result) {
+                    if ( search == $('#id_stop_name').val() ) {
+                        $('#stops_found').html('<ul></ul>');
+                        for ( var i = 0; i < result.length; i++ ) {
+                            var stop_name = result[i];
+                            $('#stops_found ul').append(
+                                $('<li></li>').append(
+                                    $('<form class="add_stop"></form>').append(
+                                        $('<input type="hidden" name="stop_name" />').val(stop_name)
+                                    ).append(
+                                        $('<button type="submit"></button>').text(stop_name)
+                                    )
+                                )
+                            );
+                        }
+                    }
+                }
+            });
+        }, 500);
+    });
+    
+    
     
     var bus_stops = get_bus_stops();
     var _current_stop = null;
