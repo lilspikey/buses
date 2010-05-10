@@ -82,7 +82,9 @@ def search(cursor):
     return json_dumps(list(get_stops(cursor, q)))
     
 
-# TODO need to set correct mimetype for manifest
+@route('/buses.manifest')
+def static_files():
+    send_file('buses.manifest', root=STATIC_PATH, mimetype='text/cache-manifest')
 
 @route('/')
 @route('/(?P<filename>.*)')
