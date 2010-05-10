@@ -11,6 +11,10 @@ DB_FILE = os.path.join(ROOT_PATH, 'buses.db')
 def times(stop):
     pass
 
+@route('/dyn/search')
+def search():
+    pass
+
 # TODO need to set correct mimetype for manifest
 
 @route('/')
