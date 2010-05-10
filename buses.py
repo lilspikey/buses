@@ -1,7 +1,10 @@
 from bottle import route, send_file, request, response, json_dumps, run
 
+from BeautifulSoup import BeautifulSoup
+
 import os.path
 import sqlite3 as db
+import urllib
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 STATIC_PATH = os.path.join(ROOT_PATH, 'static')
@@ -41,9 +44,35 @@ def get_stops(cursor, q):
     for (name,) in stops:
         yield name
 
+@with_db_cursor
+def does_stop_exist(cursor, stop):
+    sql = 'select name from stop where name = ?'
+    return cursor.execute(sql, (stop,)).fetchone() is not None
+
 @route('/dyn/times/:stop')
 def times(stop):
-    pass
+    if not does_stop_exist(stop):
+        return { 'error': 'Unknown stop' }
+    
+    qs = urllib.urlencode({'stName': stop,
+                           'allLines': 'y',
+                           'nRows': '6',
+                           'olifServerId': '182',
+                           'autorefresh': '20'})
+    html = urllib.urlopen('http://buses.citytransport.org.uk/smartinfo/service/jsp/?', qs)
+    soup = BeautifulSoup(html,convertEntities=BeautifulSoup.HTML_ENTITIES)
+    times = []#[dict(route='7', destination='Marina', departure='1 min')]
+    table = soup.find('table', bgcolor='black')
+    
+    for row in table.findAll('tr'):
+        spans = list(row.findAll('span', {'class': 'dfifahrten'}))
+        if len(spans) == 3:
+            spans = [t.string for t in spans]
+            times.append(dict(route=spans[0],
+                              destination=spans[1],
+                              departure = spans[2]))
+    
+    return { 'name': stop, 'times': times }
 
 @route('/dyn/search')
 @with_db_cursor
