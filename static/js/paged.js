@@ -179,6 +179,7 @@ var Paged = {
                         break;
                     }
                 }
+                
                 if ( current != this._current ) {
                     this._current = current;
                     var left = paged_element.offset().left - (this._current * paged_element_width());
@@ -219,6 +220,10 @@ var Paged = {
                 }
                 
                 existing.remove();
+                
+                if ( this._current == this._pages.indexOf(page_id) ) {
+                    this._current = null;
+                }
                 
                 this._pages = $.grep(this._pages, function(n, i) {
                     return (n != page_id);

@@ -223,8 +223,10 @@ $(function() {
         var page = paged.add_page(name);
         var stop = bus_stop(page, name);
         stop.save();
+
         $('#id_stop_name').val('');
         $('#stops_found').html('');
+
         paged.show(name);
         flip('#back', '#front');
     });
