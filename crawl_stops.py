@@ -126,7 +126,7 @@ def retrieve_stops_for_routes(routes):
         stops = stops_info['stops']
         for stop in stops:
             stop_id = stop['stopId']
-            stop_name = stop['stopName']
+            stop_name = stop['gpsStopName']
             naptan_code = stop['naptanCode']
             lat = stop['Lat']
             lng = stop['Lng']
