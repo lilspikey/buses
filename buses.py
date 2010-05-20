@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.5
+
 from bottle import route, send_file, request, response, json_dumps, run
 
 from BeautifulSoup import BeautifulSoup
@@ -26,14 +28,14 @@ def escape_glob(glob):
     return re.sub(r'([\\\[\]?*])', r'\\\1', glob)
 
 def get_stops(cursor, q):
-    sql = 'select distinct name from stop'
+    sql = 'select id, name from stop_name'
     sql_params = []
     clauses = []
     
     if q:
-        clauses.append('name glob ? or naptan = ?')
+        clauses.append('name glob ?')
         esq = '%s*' % escape_glob(q)
-        sql_params.extend((esq, q))
+        sql_params.extend((esq,))
     
     if clauses:
         sql += (' where %s' % (' and '.join(clauses)))
@@ -41,8 +43,8 @@ def get_stops(cursor, q):
     sql += ' order by name asc limit 30'
     
     stops = cursor.execute(sql, sql_params)
-    for (name,) in stops:
-        yield name
+    for (id, name) in stops:
+        yield { 'id': id, 'name': name }
 
 @with_db_cursor
 def does_stop_exist(cursor, stop):
