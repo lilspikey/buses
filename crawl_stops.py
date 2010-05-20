@@ -75,8 +75,9 @@ def create_db(cursor):
         'create table if not exists route (id integer primary key, service_id integer, name text)',
         'create index if not exists route_service_id_index on route (service_id)',
         'create index if not exists route_name_index on route (name)',
-        'create table if not exists stop (id integer primary key, name text, naptan text unique, lat real, lng real)',
-        'create index if not exists stop_name_index on stop (name)',
+        'create table if not exists stop_name (id integer primary key, name text unique)',
+        'create table if not exists stop (id integer primary key, name_id integer, naptan text unique, lat real, lng real)',
+        'create index if not exists stop_name_id_index on stop (name_id)',
         'create index if not exists stop_naptan_index on stop (naptan)',
         'create index if not exists stop_lat_index on stop (lat)',
         'create index if not exists stop_lng_index on stop (lng)',
@@ -97,7 +98,16 @@ def insert_routes(cursor, routes):
 
 @with_db_cursor
 def insert_stops(cursor, stops):
-    cursor.executemany('insert or replace into stop (id, name, naptan, lat, lng) values(?,?,?,?,?)', stops)
+    names = list(set(name for (_, name, _, _, _) in stops))
+    names.sort()
+    
+    cursor.executemany('insert or replace into stop_name (name) values(?)', [(name,) for name in names])
+    
+    id_by_name = dict((name, id) for (id,name) in cursor.execute('select id, name from stop_name'))
+    
+    stops = [(id, id_by_name[name], naptan, lat, lng) for (id, name, naptan, lat, lng) in stops]
+    
+    cursor.executemany('insert or replace into stop (id, name_id, naptan, lat, lng) values(?,?,?,?,?)', stops)
 
 @with_db_cursor
 def insert_stop_route_m2m(cursor, m2m):
