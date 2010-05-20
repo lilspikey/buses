@@ -47,16 +47,20 @@ def get_stops(cursor, q):
         yield { 'id': id, 'name': name }
 
 @with_db_cursor
-def does_stop_exist(cursor, stop):
-    sql = 'select name from stop where name = ?'
-    return cursor.execute(sql, (stop,)).fetchone() is not None
+def find_stop_name(cursor, name_id):
+    sql = 'select name from stop_name where id = ?'
+    results = cursor.execute(sql, (name_id,)).fetchone()
+    if results:
+        return results[0]
+    return None
 
-@route('/dyn/times/:stop')
-def times(stop):
-    if not does_stop_exist(stop):
+@route('/dyn/times/:name_id')
+def times(name_id):
+    stop_name = find_stop_name(name_id)
+    if not stop_name:
         return { 'error': 'Unknown stop' }
     
-    qs = urllib.urlencode({'stName': stop,
+    qs = urllib.urlencode({'stName': stop_name,
                            'allLines': 'y',
                            'nRows': '6',
                            'olifServerId': '182',
@@ -74,7 +78,7 @@ def times(stop):
                               destination=spans[1],
                               departure = spans[2]))
     
-    return { 'name': stop, 'times': times }
+    return { 'name': stop_name, 'times': times }
 
 @route('/dyn/search')
 @with_db_cursor
