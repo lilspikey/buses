@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# version 1.0.18
+# version 1.0.27
 
 CACHE:
 index.html
@@ -9,6 +9,7 @@ favicon.ico
 css/buses.css
 
 js/jquery-1.4.2.min.js
+js/json2.min.js
 js/buses.js
 js/paged.js
 

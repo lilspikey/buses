@@ -1,7 +1,24 @@
 $(function() {
+    var _json_store = {
+        getItem: function(key, defaultValue) {
+            try {
+                var value = window.localStorage.getItem(key);
+                return JSON.parse(value);
+            }
+            catch(SyntaxError) {
+                return defaultValue;
+            }
+        },
+        
+        setItem: function(key, value) {
+            value = JSON.stringify(value);
+            window.localStorage.setItem(key, value);
+        }
+    };
+    
     var get_storage = function() {
         if ( window.localStorage ) {
-            return window.localStorage;
+            return _json_store;
         }
         // TODO use in memory storage?
         alert('Sorry no local storage available');
@@ -32,13 +49,14 @@ $(function() {
         });
     };
     
-    var bus_stop = function(element, name) {
+    var bus_stop = function(element, id, name) {
         var stop = {
             element: element,
+            id: id,
             name: name,
             
             save: function() {
-                add_bus_stop(this.name);
+                add_bus_stop(this.id, this.name);
             },
             
             update: function() {
@@ -46,7 +64,7 @@ $(function() {
                 self.element.addClass('loading');
                 self.element.find('.stopname').text(self.name);
                 $.ajax({
-                    url: 'dyn/times/' + escape(self.name),
+                    url: 'dyn/times/' + escape(self.id),
                     cache: false,
                     dataType: 'json',
                     success: function(result) {
@@ -84,57 +102,41 @@ $(function() {
         return stop;
     };
     
-    var _get_names = function() {
-        var store = get_storage();
-        var names = store.getItem('bus_stops') || '';
-        names = names.split(/ /);
-        var non_empty = []
-        for ( var i = 0; i < names.length; i++ ) {
-            if ( names[i] ) {
-                non_empty.push(unescape(names[i]));
-            }
-        }
-        return non_empty;
-    };
-    
     var get_bus_stops = function() {
-        var names = _get_names()
-        var bus_stops = [];
-        if ( names ) {
-            for ( var i = 0; i < names.length; i++ ) {
-                var name = names[i];
-                var page = paged.add_page(name);
-                bus_stops.push(bus_stop(page, name));
-            }
+        var store = get_storage();
+        var bus_stops = store.getItem('bus_stops') || [];
+        for ( var i = 0; i < bus_stops.length; i++ ) {
+            var id   = bus_stops[i].id;
+            var name = bus_stops[i].name;
+            var page = paged.add_page(id);
+            bus_stops[i] = bus_stop(page, id, name);
         }
         return bus_stops;
     };
     
-    var serialize_array = function(arr) {
-        arr = $.map(arr, function(n, i) {
-            return escape(n);
-        });
-        return arr.join(' ');
-    }
-    
-    var add_bus_stop = function(name) {
+    var add_bus_stop = function(id, name) {
         var store = get_storage();
-        var names = _get_names()
-        if ( $.inArray(name, names) < 0 ) {
-            names.push(name);
-            store.setItem('bus_stops', serialize_array(names));
+        var bus_stops = store.getItem('bus_stops') || [];
+        for ( var i = 0; i < bus_stops.length; i++ ) {
+            var stop_id = bus_stops[i].id;
+            if ( id == stop_id ) {
+                return;
+            }
         }
+        
+        bus_stops.push({ id:id, name:name });
+        store.setItem('bus_stops', bus_stops);
     }
     
-    var remove_bus_stop = function(name) {
+    var remove_bus_stop = function(id) {
         var store = get_storage();
-        var names = _get_names()
-        names = $.grep(names, function(n, i) {
-            return (n != name);
+        var bus_stops = store.getItem('bus_stops') || [];
+        bus_stops = $.grep(bus_stops, function(n, i) {
+            return (n.id != id);
         });
-        store.setItem('bus_stops', serialize_array(names));
+        store.setItem('bus_stops', bus_stops);
         
-        if ( _current_stop.name == name ) {
+        if ( _current_stop.id == id ) {
             _current_stop = null;
         }
     }
@@ -144,7 +146,7 @@ $(function() {
         bus_stops = get_bus_stops();
         for ( var i = 0; i < bus_stops.length; i++ ) {
             var stop = bus_stops[i];
-            if ( stop.name == page_id ) {
+            if ( stop.id == page_id ) {
                 set_current_stop(stop);
                 stop.update();
                 break;
@@ -160,23 +162,24 @@ $(function() {
             var current_stop = get_current_stop();
             for ( var i = 0; i < bus_stops.length; i++ ) {
                 var stop = bus_stops[i];
-                var active = ((current_stop == null && i == 0) || current_stop.name == stop.name);
+                var active = ((current_stop == null && i == 0) || current_stop.id == stop.id);
                 $('#back ul#bus_stops')
                     .append(
                         $('<li></li>').append(
                             $('<a class="view"></a>')
                                 .text(stop.name)
-                                .attr('href', stop.name)
+                                .attr('href', stop.id)
                         ).append(
                             $('<a class="delete">[x]</a>')
-                                .attr('href', stop.name)
+                                .attr('title', 'Delete ' + stop.name)
+                                .attr('href', stop.id)
                         )
                     );
                 $('ul#stop_links')
                     .append(
                         $('<li></li>').append(
                             $('<a>&#149;</a>')
-                                .attr('href', stop.name)
+                                .attr('href', stop.id)
                                 .addClass(active? 'active' : '')
                             )
                     );
@@ -186,24 +189,24 @@ $(function() {
         
     $('ul#stop_links li a').live('click', function(event) {
         event.preventDefault();
-        var name = $(this).attr('href');
-        paged.show(name);
+        var id = $(this).attr('href');
+        paged.show(id);
     });
     
     $('ul#bus_stops li a.view').live('click', function(event) {
         event.preventDefault();
-        var name = $(this).attr('href');
-        paged.show(name);
+        var id = $(this).attr('href');
+        paged.show(id);
         flip('#back', '#front');
     });
     
     $('ul#bus_stops li a.delete').live('click', function(event) {
         event.preventDefault();
-        var name = $(this).attr('href');
-        if ( confirm('Remove: ' + name + '?') ) {
-            remove_bus_stop(name);
+        if ( confirm($(this).attr('title') + '?') ) {
+            var id = $(this).attr('href');
+            remove_bus_stop(id);
             bus_stops = get_bus_stops();
-            paged.remove_page(name);
+            paged.remove_page(id);
             display_stops(bus_stops);
         }
     });
@@ -219,15 +222,18 @@ $(function() {
     
     $('#back form.add_stop').live('submit', function(event) {
         event.preventDefault();
+        var id   = $(this).find('input[name=stop_id]').val();
         var name = $(this).find('input[name=stop_name]').val();
-        var page = paged.add_page(name);
-        var stop = bus_stop(page, name);
+        var page = paged.add_page(id);
+        var stop = bus_stop(page, id, name);
         stop.save();
-
+        
+        bus_stops = get_bus_stops();
+        
         $('#id_stop_name').val('');
         $('#stops_found').html('');
 
-        paged.show(name);
+        paged.show(id);
         flip('#back', '#front');
     });
     
@@ -247,10 +253,13 @@ $(function() {
                     if ( search == $('#id_stop_name').val() ) {
                         $('#stops_found').html('<ul></ul>');
                         for ( var i = 0; i < result.length; i++ ) {
-                            var stop_name = result[i];
+                            var stop_id = result[i].id;
+                            var stop_name = result[i].name;
                             $('#stops_found ul').append(
                                 $('<li></li>').append(
                                     $('<form class="add_stop"></form>').append(
+                                        $('<input type="hidden" name="stop_id" />').val(stop_id)
+                                    ).append(
                                         $('<input type="hidden" name="stop_name" />').val(stop_name)
                                     ).append(
                                         $('<button type="submit"></button>').text(stop_name)
@@ -271,14 +280,14 @@ $(function() {
     var set_current_stop = function(current_stop) {
         _current_stop = current_stop;
         var store = get_storage();
-        store.setItem('current_stop', current_stop.name);
+        store.setItem('current_stop', current_stop.id);
     }
     var get_current_stop = function() {
         if ( !_current_stop ) {
             var store = get_storage();
-            var name = store.getItem('current_stop');
+            var id = store.getItem('current_stop');
             for ( var i = 0; i < bus_stops.length; i++ ) {
-                if ( bus_stops[i].name == name ) {
+                if ( bus_stops[i].id == id ) {
                     _current_stop = bus_stops[i];
                     return _current_stop;
                 }
@@ -294,7 +303,7 @@ $(function() {
     _current_stop = get_current_stop();
     if ( _current_stop != null ) {
         _current_stop.update();
-        paged.show(_current_stop.name);
+        paged.show(_current_stop.id);
     }
     else {
         flip('#front', '#back');
