@@ -70,19 +70,16 @@ def get_service_ids():
 @with_db_cursor
 def create_db(cursor):
     statements = [
-        'create table if not exists service (id integer primary key, name text, description text)',
-        'create index if not exists service_name_index on service (name)',
-        'create table if not exists route (id integer primary key, service_id integer, name text)',
-        'create index if not exists route_service_id_index on route (service_id)',
-        'create index if not exists route_name_index on route (name)',
-        'create table if not exists stop_name (id integer primary key, name text unique)',
-        'create table if not exists stop (id integer primary key, name_id integer, naptan text unique, lat real, lng real)',
-        'create index if not exists stop_name_id_index on stop (name_id)',
-        'create index if not exists stop_naptan_index on stop (naptan)',
+        #'create table if not exists service (id integer primary key, name text, description text)',
+        #'create index if not exists service_name_index on service (name)',
+        #'create table if not exists route (id integer primary key, service_id integer, name text)',
+        #'create index if not exists route_service_id_index on route (service_id)',
+        'create table if not exists stop (id integer primary key, name text unique, lat real, lng real)',
+        'create index if not exists stop_name_index on stop (name)',
         'create index if not exists stop_lat_index on stop (lat)',
         'create index if not exists stop_lng_index on stop (lng)',
         'create index if not exists stop_lat_lng_index on stop (lat,lng)',
-        'create table if not exists route_stop (route_id integer, stop_id integer, unique(route_id, stop_id))',
+        #'create table if not exists route_stop (route_id integer, stop_id integer, unique(route_id, stop_id))',
     ]
     for stmt in statements:
         cursor.execute(stmt)
@@ -98,16 +95,32 @@ def insert_routes(cursor, routes):
 
 @with_db_cursor
 def insert_stops(cursor, stops):
-    names = list(set(name for (_, name, _, _, _) in stops))
+    '''
+    We will merge stops with the same name, as when we get times
+    it is always for both/all stops with that name anyway
+    '''
+    
+    stops_by_name = {}
+    
+    for stop_id, stop_name, naptan_code, lat, lng in stops:
+        by_name = stops_by_name.get(stop_name, [])
+        by_name.append((float(lat), float(lng)))
+        stops_by_name[stop_name] = by_name
+    
+    names = list(stops_by_name.keys())
     names.sort()
-    
-    cursor.executemany('insert or replace into stop_name (name) values(?)', [(name,) for name in names])
-    
-    id_by_name = dict((name, id) for (id,name) in cursor.execute('select id, name from stop_name'))
-    
-    stops = [(id, id_by_name[name], naptan, lat, lng) for (id, name, naptan, lat, lng) in stops]
-    
-    cursor.executemany('insert or replace into stop (id, name_id, naptan, lat, lng) values(?,?,?,?,?)', stops)
+    merged_stops = []
+    for name in names:
+        all_coords = stops_by_name[name]
+        lat_sum, lng_sum = 0, 0
+        for lat, lng in all_coords:
+            lat_sum += lat
+            lng_sum += lng
+        lat = lat_sum/len(all_coords)
+        lng = lng_sum/len(all_coords)
+        merged_stops.append((name, lat, lng))
+        
+    cursor.executemany('insert or replace into stop (name, lat, lng) values(?,?,?)', merged_stops)
 
 @with_db_cursor
 def insert_stop_route_m2m(cursor, m2m):
@@ -154,12 +167,12 @@ def main():
     create_db()
     
     services = list(retrieve_services())
-    print "Inserting %s services" % len(services)
-    insert_services(services)
+    print "Found %s services" % len(services)
+    #insert_services(services)
     
     routes = list(extract_routes_from_services(services))
-    print "Inserting %s routes" % len(routes)
-    insert_routes(routes)
+    print "Found %s routes" % len(routes)
+    #insert_routes(routes)
     
     stops_for_routes = list(retrieve_stops_for_routes(routes))
     stops, m2m = extract_stops_and_m2m(stops_for_routes)
@@ -167,8 +180,8 @@ def main():
     print "Inserting %s stops" % len(stops)
     insert_stops(stops)
     
-    print "Inserting %s route/stops" % len(m2m)
-    insert_stop_route_m2m(m2m)
+    #print "Inserting %s route/stops" % len(m2m)
+    #insert_stop_route_m2m(m2m)
 
 if __name__ == '__main__':
     main()
