@@ -41,8 +41,8 @@ def escape_glob(glob):
     return re.sub(r'([\\\[\]?*])', r'\\\1', glob)
 
 def get_stops(cursor, q, ll):
-    fields = ['stop_name.id', 'stop_name.name', 'stop.lat', 'stop.lng']
-    clauses = ['stop_name.id = stop.name_id']
+    fields = ['stop.id', 'stop.name', 'stop.lat', 'stop.lng']
+    clauses = []
     order_by = 'name asc'
     sql_params = []
     
@@ -60,12 +60,12 @@ def get_stops(cursor, q, ll):
             sql_params.extend((lat, lng))
             order_by = 'dist asc'
     
-    sql = 'select %s from stop_name, stop' % (', '.join(fields))
+    sql = 'select %s from stop' % (', '.join(fields))
     
     if clauses:
         sql += (' where %s' % (' and '.join(clauses)))
     
-    sql += ' order by %s limit 60' % order_by
+    sql += ' order by %s limit 30' % order_by
     
     stops = cursor.execute(sql, sql_params)
     for stop in stops:
@@ -77,7 +77,7 @@ def get_stops(cursor, q, ll):
 
 @with_db_cursor
 def find_stop_name(cursor, name_id):
-    sql = 'select name from stop_name where id = ?'
+    sql = 'select name from stop where id = ?'
     results = cursor.execute(sql, (name_id,)).fetchone()
     if results:
         return results[0]
