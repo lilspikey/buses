@@ -70,6 +70,16 @@ $(function() {
         });
     };
     
+    var formate_date = function(date) {
+        var hour = date.getHours();
+        var min  = date.getMinutes();
+        var sec  = date.getSeconds();
+        
+        return hour + 
+            ':' + (min < 10?('0' + min): min) +
+            ':' + (sec < 10?('0' + sec): sec);
+    }
+    
     var bus_stop = function(element, id, name) {
         var stop = {
             element: element,
@@ -84,14 +94,22 @@ $(function() {
                 var self = this;
                 self.element.addClass('loading');
                 self.element.find('.stopname').text(self.name);
+                var source_url = self.element.find('.stop_status a').attr('href');
+                source_url = source_url.replace(/stName=[^&]*/, 'stName=' + escape(self.name));
+                source_url = source_url.replace(/stopId=[^&]*/, 'stopId=' + escape(self.name));
+                self.element.find('.stop_status a').attr('href', source_url);
                 $.ajax({
                     url: 'dyn/times/' + escape(self.id),
                     cache: false,
                     dataType: 'json',
                     success: function(result) {
                         if ( result ) {
+                            var updated = formate_date(new Date());
+                            self.element.find('.stop_status .updated').text(
+                                updated
+                            );
                             if ( result.error ) {
-                                self.element.find('.stop_status').text(result.error);
+                                self.element.find('.stop_status .error').text(result.error);
                             }
                             else {
                                 self.element.find('.stopname').text(result.name);

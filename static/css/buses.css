@@ -121,6 +121,13 @@ body {
 }
 .stop_status {
     text-align: center;
+    font-size: 0.75em;
+}
+.stop_status a {
+    color: #ccc;
+}
+.stop_status .error {
+    font-weight: bold;
 }
 ul#stop_links {
     text-align: center;
