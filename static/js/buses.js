@@ -41,6 +41,27 @@ $(function() {
         cache.addEventListener('error', cacheErrorListener, false);
     }
     
+    if ( navigator.geolocation ) {
+        $('#id_find_nearby').click(function(event) {
+            event.preventDefault();
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                $.ajax({
+                    url: 'dyn/search?ll=' + escape(latitude + ',' + longitude),
+                    cache: false,
+                    dataType: 'json',
+                    success: function(result) {
+                        display_search_results(result);
+                    }
+                });
+            })
+        });
+    }
+    else {
+        $('.uses_geolocation').hide();
+    }
+    
     var flip = function(front, back) {
         $(back).show(function() { 
             $(back).removeClass('hidden');
@@ -237,6 +258,25 @@ $(function() {
         flip('#back', '#front');
     });
     
+    var display_search_results = function(result) {
+        $('#stops_found').html('<ul></ul>');
+        for ( var i = 0; i < result.length; i++ ) {
+            var stop_id = result[i].id;
+            var stop_name = result[i].name;
+            $('#stops_found ul').append(
+                $('<li></li>').append(
+                    $('<form class="add_stop"></form>').append(
+                        $('<input type="hidden" name="stop_id" />').val(stop_id)
+                    ).append(
+                        $('<input type="hidden" name="stop_name" />').val(stop_name)
+                    ).append(
+                        $('<button type="submit"></button>').text(stop_name)
+                    )
+                )
+            );
+        }
+    };
+    
     var current_search_id = null;
     $('#id_stop_name').live('keyup', function(event) {
         if ( current_search_id ) {
@@ -251,22 +291,7 @@ $(function() {
                 dataType: 'json',
                 success: function(result) {
                     if ( search == $('#id_stop_name').val() ) {
-                        $('#stops_found').html('<ul></ul>');
-                        for ( var i = 0; i < result.length; i++ ) {
-                            var stop_id = result[i].id;
-                            var stop_name = result[i].name;
-                            $('#stops_found ul').append(
-                                $('<li></li>').append(
-                                    $('<form class="add_stop"></form>').append(
-                                        $('<input type="hidden" name="stop_id" />').val(stop_id)
-                                    ).append(
-                                        $('<input type="hidden" name="stop_name" />').val(stop_name)
-                                    ).append(
-                                        $('<button type="submit"></button>').text(stop_name)
-                                    )
-                                )
-                            );
-                        }
+                        display_search_results(result);
                     }
                 }
             });

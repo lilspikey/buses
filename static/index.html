@@ -79,8 +79,14 @@
                     <li></li>
                 </ul>
                 <form class='stop_search' action='#'>
-                    <label for='id_stop_name'>Stop name</label>
-                    <input type='text' name='stop_name' id='id_stop_name' >
+                    <span>
+                        <label for='id_stop_name'>Stop name</label>
+                        <input type='text' name='stop_name' id='id_stop_name' >
+                    </span>
+                    <span class='uses_geolocation'>
+                        or
+                        <button id='id_find_nearby'>Find nearby</button>
+                    </span>
                 </form>
                 
                 <div id='stops_found'>
