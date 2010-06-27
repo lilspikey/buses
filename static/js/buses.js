@@ -70,7 +70,7 @@ $(function() {
         });
     };
     
-    var formate_date = function(date) {
+    var format_date = function(date) {
         var hour = date.getHours();
         var min  = date.getMinutes();
         var sec  = date.getSeconds();
@@ -104,7 +104,7 @@ $(function() {
                     dataType: 'json',
                     success: function(result) {
                         if ( result ) {
-                            var updated = formate_date(new Date());
+                            var updated = format_date(new Date());
                             self.element.find('.stop_status .updated').text(
                                 updated
                             );
