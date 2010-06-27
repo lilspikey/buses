@@ -11,8 +11,8 @@ fab --user=<user> --hosts=<host> deploy:webapps/buses/app/
 '''
 
 def deploy(remote_dir):
-    local('tar czf /tmp/buses.tgz .', capture=False)
-    put('/tmp/buses.tgz', remote_dir)
+    local('git archive --format=tar HEAD | gzip > /tmp/buses.tar.gz')
+    put('/tmp/buses.tar.gz', remote_dir)
     with cd(remote_dir):
-            run('tar xzf buses.tgz')
+            run('tar xzf buses.tar.gz')
             run('touch buses.wsgi')
