@@ -14,5 +14,5 @@ def deploy(remote_dir):
     local('git archive --format=tar HEAD | gzip > /tmp/buses.tar.gz')
     put('/tmp/buses.tar.gz', remote_dir)
     with cd(remote_dir):
-            run('tar xzf buses.tar.gz')
-            run('touch buses.wsgi')
+        run('tar xzf buses.tar.gz')
+        run('touch buses.wsgi')
