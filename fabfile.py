@@ -2,10 +2,10 @@ from __future__ import with_statement
 from fabric.api import local, put, cd, run
 
 '''
-Really minimal fab file, just tar.gz's content, uploads to remove directory,
-unpacks then touches wsgi file
+Really minimal fab file, just tar.gz's content, uploads to remote directory,
+unpacks, then touches wsgi file
 
-Will need to specify specific settings, e.g.:
+Will need to specify specific settings on command line, e.g.:
 
 fab --user=<user> --hosts=<host> deploy:webapps/buses/app/
 '''
