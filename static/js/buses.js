@@ -47,6 +47,7 @@ $(function() {
     if ( navigator.geolocation ) {
         $('#id_find_nearby').click(function(event) {
             event.preventDefault();
+            $('form.stop_search').addClass('loading');
             navigator.geolocation.getCurrentPosition(function(position) {
                 var latitude = position.coords.latitude;
                 var longitude = position.coords.longitude;
@@ -56,6 +57,9 @@ $(function() {
                     dataType: 'json',
                     success: function(result) {
                         display_search_results(result);
+                    },
+                    complete: function() {
+                        $('form.stop_search').removeClass('loading');
                     }
                 });
             })
@@ -306,6 +310,7 @@ $(function() {
         }
         var search = $('#id_stop_name').val();
         current_search_id = setTimeout(function() {
+            $('form.stop_search').addClass('loading');
             $.ajax({
                 url: 'dyn/search?q=' + escape(search),
                 cache: false,
@@ -314,6 +319,9 @@ $(function() {
                     if ( search == $('#id_stop_name').val() ) {
                         display_search_results(result);
                     }
+                },
+                complete: function() {
+                    $('form.stop_search').removeClass('loading');
                 }
             });
         }, 500);

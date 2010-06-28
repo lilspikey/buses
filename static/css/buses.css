@@ -173,6 +173,11 @@ ul#bus_stops li a.delete {
     color: #ccc;
 }
 
+form.loading {
+    background: url(../img/loading.gif) top right no-repeat;
+    padding-right: 24px;
+}
+
 #stops_found ul {
     margin-top: 2px;
     background: #003;
