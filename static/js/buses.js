@@ -29,8 +29,7 @@ $(function() {
         
         var cacheUpdatereadyListener = function() {
             cache.swapCache();
-            $('#status').text('update ready');
-            window.location.reload();
+            $('#update').html('New version available: <button type="submit">Update</button>').slideDown();
         };
         
         var cacheErrorListener = function() {
@@ -39,6 +38,10 @@ $(function() {
         
         cache.addEventListener('updateready', cacheUpdatereadyListener, false);
         cache.addEventListener('error', cacheErrorListener, false);
+        
+        $('#update button').live('click', function() {
+            window.location.reload();
+        });
     }
     
     if ( navigator.geolocation ) {
