@@ -22,6 +22,15 @@ body {
     color: #330;
 }
 
+#update a {
+    float: right;
+    display: block;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: #660;
+    margin: 0 5px;
+}
+
 #content {
     height: 99%;
     width: 99%;
