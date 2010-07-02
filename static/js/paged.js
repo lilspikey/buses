@@ -36,6 +36,50 @@ var Paged = {
             paged.show_right();
         });
         
+        /* touch handlers */
+        function handleTouchEvent(event) {
+            /* from http://jasonkuhn.net/mobile/jqui/js/jquery.iphoneui.js
+             but changed a bit*/
+            var touches = event.changedTouches;
+            var first = touches[0];
+            var type = '';
+
+            if ( event.type != 'touchmove' ) {
+                event.preventDefault();
+            }
+
+            if ( !first.target ) {
+                return;
+            }
+
+            switch(event.type) {
+                case 'touchstart':
+                    type = 'mousedown';
+                    break;
+
+                case 'touchmove':
+                    type = 'mousemove';
+                    break;
+
+                case 'touchend':
+                    type = 'mouseup';
+                    break;
+
+                default:
+                    return;
+            }
+
+            var simulatedEvent = document.createEvent('MouseEvent');
+            simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0/*left*/, null);
+
+            first.target.dispatchEvent(simulatedEvent);
+        }
+        var paged_element_dom = paged_element.get(0);
+        paged_element_dom.addEventListener("touchstart", handleTouchEvent, true);
+        paged_element_dom.addEventListener("touchmove", handleTouchEvent, true);
+        paged_element_dom.addEventListener("touchend", handleTouchEvent, true);
+        /* end touch handlers */
+        
         var paged = {
             _pages: [],
             _page_elements: {},
