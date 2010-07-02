@@ -29,15 +29,11 @@ var Paged = {
             internal_pages.css('left', left + 'px');
         }
         
-        paged_element.find('.timetable').live('click', function(event) {
-            var timetable = $(event.target).closest('table.timetable');
-            var mid_point = timetable.offset().left + 0.5*timetable.width();
-            if ( event.pageX < mid_point ) {
-                paged.show_left();
-            }
-            else {
-                paged.show_right();
-            }            
+        paged_element.find('td.route').live('click', function(event) {
+            paged.show_left();
+        });
+        paged_element.find('td.departure').live('click', function(event) {
+            paged.show_right();
         });
         
         var paged = {
