@@ -182,7 +182,7 @@ var Paged = {
                 
                 if ( current != this._current ) {
                     this._current = current;
-                    var left = paged_element.offset().left - (this._current * paged_element_width());
+                    var left = 0 - (this._current * paged_element_width());
                     set_internal_pages_left(left);
                     speed_x = 0;
                     this._stop_ticking();
