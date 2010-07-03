@@ -65,7 +65,7 @@ def get_stops(cursor, q, ll):
     if clauses:
         sql += (' where %s' % (' and '.join(clauses)))
     
-    sql += ' order by %s limit 10' % order_by
+    sql += ' order by %s limit 15' % order_by
     
     stops = cursor.execute(sql, sql_params)
     for stop in stops:
