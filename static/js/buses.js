@@ -304,8 +304,10 @@ $(function() {
     var display_search_results = function(result, current_pos) {
         $('#stops_found').html('<ul></ul>');
         
+        var map_width = $('#stops_found').width();
+        
         var map_params = [
-            'size=320x320',
+            'size='+map_width+'x'+map_width,
             'maptype=roadmap',
             'sensor=true'
         ];
