@@ -71,7 +71,10 @@ $(function() {
                         }
                     });
                     
-                    if ( (new Date().getTime() - start_watch) > 30*1000 ) {
+                    if (
+                        (new Date().getTime() - start_watch) > 15*1000
+                    || (position.coords.accuracy <= 10)
+                     ) {
                         navigator.geolocation.clearWatch(watch_id);
                     }
                 },
@@ -307,7 +310,7 @@ $(function() {
     });
     
     var display_search_results = function(result, current_pos) {
-        $('#stops_found').html('<ul></ul>');
+        var results_list = $('<ul></ul>');
         
         var map_width = $('#stops_found').width() - 20;
         
@@ -328,7 +331,7 @@ $(function() {
             var stop = result[i];
             var stop_id = stop.id;
             var stop_name = stop.name;
-            $('#stops_found ul').append(
+            results_list.append(
                 $('<li></li>').append(
                     $('<form class="add_stop"></form>').append(
                         $('<input type="hidden" name="stop_id" />').val(stop_id)
@@ -349,11 +352,15 @@ $(function() {
         map_url += (map_params.join('&'));
         
         if ( result.length > 0 ) {
-            $('#stops_found ul').append(
+            results_list.append(
                 $('<li></li>').append(
                     $('<img />').attr('src', map_url)
                 )
             );
+        }
+        
+        if ( results_list.html() != $('#stops_found ul').html() ) {
+            $('#stops_found').html('').append(results_list);
         }
     };
     
