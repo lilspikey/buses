@@ -77,8 +77,7 @@ $(function() {
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 30*1000,
-                    maximumAge: 10*1000 // allow position from 10 seconds ago
+                    timeout: 30*1000
                 }
             );
         });
