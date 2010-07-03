@@ -304,7 +304,7 @@ $(function() {
     var display_search_results = function(result, current_pos) {
         $('#stops_found').html('<ul></ul>');
         
-        var map_width = $('#stops_found').width();
+        var map_width = $('#stops_found').width() - 10;
         
         var map_params = [
             'size='+map_width+'x'+map_width,
