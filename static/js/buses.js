@@ -53,8 +53,10 @@ $(function() {
         $('#id_find_nearby').click(function(event) {
             event.preventDefault();
             $('form.stop_search').addClass('loading');
-            navigator.geolocation.getCurrentPosition(
+            var start_watch = new Date().getTime();
+            var watch_id = navigator.geolocation.watchPosition(
                 function(position) {
+                    $('form.stop_search').addClass('loading');
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
                     $.ajax({
@@ -68,6 +70,10 @@ $(function() {
                             $('form.stop_search').removeClass('loading');
                         }
                     });
+                    
+                    if ( (new Date().getTime() - start_watch) > 30*1000 ) {
+                        navigator.geolocation.clearWatch(watch_id);
+                    }
                 },
                 function(code) {
                     if ( code != 1 ) {
