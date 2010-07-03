@@ -72,7 +72,7 @@ $(function() {
                     });
                     
                     if (
-                        (new Date().getTime() - start_watch) > 15*1000
+                        (new Date().getTime() - start_watch) > 30*1000
                     || (position.coords.accuracy <= 20)
                      ) {
                         navigator.geolocation.clearWatch(watch_id);
