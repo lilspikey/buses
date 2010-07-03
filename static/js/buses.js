@@ -53,21 +53,30 @@ $(function() {
         $('#id_find_nearby').click(function(event) {
             event.preventDefault();
             $('form.stop_search').addClass('loading');
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-                $.ajax({
-                    url: 'dyn/search?ll=' + escape(latitude + ',' + longitude),
-                    cache: false,
-                    dataType: 'json',
-                    success: function(result) {
-                        display_search_results(result);
-                    },
-                    complete: function() {
-                        $('form.stop_search').removeClass('loading');
-                    }
-                });
-            })
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+                    $.ajax({
+                        url: 'dyn/search?ll=' + escape(latitude + ',' + longitude),
+                        cache: false,
+                        dataType: 'json',
+                        success: function(result) {
+                            display_search_results(result);
+                        },
+                        complete: function() {
+                            $('form.stop_search').removeClass('loading');
+                        }
+                    });
+                },
+                function() {
+                    $('form.stop_search').removeClass('loading');
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 10*1000 // allow position from 10 seconds ago
+                }
+            );
         });
     }
     else {
