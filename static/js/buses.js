@@ -62,18 +62,22 @@ $(function() {
                         cache: false,
                         dataType: 'json',
                         success: function(result) {
-                            display_search_results(result);
+                            display_search_results(result, {lat: latitude, lng: longitude});
                         },
                         complete: function() {
                             $('form.stop_search').removeClass('loading');
                         }
                     });
                 },
-                function() {
+                function(code) {
+                    if ( code != 1 ) {
+                        alert("Error getting position");
+                    }
                     $('form.stop_search').removeClass('loading');
                 },
                 {
                     enableHighAccuracy: true,
+                    timeout: 30*1000,
                     maximumAge: 10*1000 // allow position from 10 seconds ago
                 }
             );
@@ -297,11 +301,26 @@ $(function() {
         flip('#back', '#front');
     });
     
-    var display_search_results = function(result) {
+    var display_search_results = function(result, current_pos) {
         $('#stops_found').html('<ul></ul>');
+        
+        var map_params = [
+            'size=320x320',
+            'maptype=roadmap',
+            'sensor=true'
+        ];
+        
+        if ( current_pos ) {
+            map_params.push(
+                'markers=color:red|'+current_pos.lat+','+current_pos.lng
+            );
+        }
+        
         for ( var i = 0; i < result.length; i++ ) {
-            var stop_id = result[i].id;
-            var stop_name = result[i].name;
+            var label = String.fromCharCode('A'.charCodeAt() + i);
+            var stop = result[i];
+            var stop_id = stop.id;
+            var stop_name = stop.name;
             $('#stops_found ul').append(
                 $('<li></li>').append(
                     $('<form class="add_stop"></form>').append(
@@ -309,11 +328,26 @@ $(function() {
                     ).append(
                         $('<input type="hidden" name="stop_name" />').val(stop_name)
                     ).append(
-                        $('<button type="submit"></button>').text(stop_name)
+                        $('<button type="submit"></button>').text(label + ': ' + stop_name)
                     )
                 )
             );
+            
+            if ( i < 10 ) {
+                map_params.push(
+                    'markers=color:blue|label:'+label+'|'+stop.lat+','+stop.lng
+                );
+            }
         }
+        
+        var map_url = 'http://maps.google.com/maps/api/staticmap?';
+        map_url += (map_params.join('&'));
+        
+        $('#stops_found ul').append(
+            $('<li></li>').append(
+                $('<img />').attr('src', map_url)
+            )
+        );
     };
     
     var current_search_id = null;

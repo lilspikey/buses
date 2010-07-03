@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# version 1.0.79
+# version 1.0.87
 
 CACHE:
 index.html
@@ -18,3 +18,4 @@ img/buses-touch-icon.png
 
 NETWORK:
 dyn
+http://maps.google.com/
