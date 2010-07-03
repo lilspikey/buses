@@ -37,8 +37,8 @@ def with_db_cursor(fn):
             conn.close()
     return _decorated
 
-def escape_glob(glob):
-    return re.sub(r'([\\\[\]?*])', r'\\\1', glob)
+def escape_like(pattern):
+    return re.sub(r'([$_%])', r'$\1', pattern)
 
 def get_stops(cursor, q, ll):
     fields = ['stop.id', 'stop.name', 'stop.lat', 'stop.lng']
@@ -47,8 +47,8 @@ def get_stops(cursor, q, ll):
     sql_params = []
     
     if q:
-        clauses.append('name glob ?')
-        esq = '%s*' % escape_glob(q)
+        clauses.append(r"name like ? escape '$'")
+        esq = '%s%%' % escape_like(q)
         sql_params.extend((esq,))
     elif ll:
         m = re.match(r'^(-?\d+\.?\d*),(-?\d+\.?\d*)$', ll)

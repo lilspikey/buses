@@ -304,7 +304,7 @@ $(function() {
     var display_search_results = function(result, current_pos) {
         $('#stops_found').html('<ul></ul>');
         
-        var map_width = $('#stops_found').width() - 10;
+        var map_width = $('#stops_found').width() - 20;
         
         var map_params = [
             'size='+map_width+'x'+map_width,
@@ -335,21 +335,21 @@ $(function() {
                 )
             );
             
-            if ( i < 10 ) {
-                map_params.push(
-                    'markers=color:blue|label:'+label+'|'+stop.lat+','+stop.lng
-                );
-            }
+            map_params.push(
+                'markers=color:blue|label:'+label+'|'+stop.lat+','+stop.lng
+            );
         }
         
         var map_url = 'http://maps.google.com/maps/api/staticmap?';
         map_url += (map_params.join('&'));
         
-        $('#stops_found ul').append(
-            $('<li></li>').append(
-                $('<img />').attr('src', map_url)
-            )
-        );
+        if ( result.length > 0 ) {
+            $('#stops_found ul').append(
+                $('<li></li>').append(
+                    $('<img />').attr('src', map_url)
+                )
+            );
+        }
     };
     
     var current_search_id = null;
