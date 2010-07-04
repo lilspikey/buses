@@ -50,11 +50,14 @@ $(function() {
     }
     
     if ( navigator.geolocation ) {
+        var watch_id = null;
+        
         $('#id_find_nearby').click(function(event) {
             event.preventDefault();
             $('form.stop_search').addClass('loading');
             var start_watch = new Date().getTime();
-            var watch_id = navigator.geolocation.watchPosition(
+            navigator.geolocation.clearWatch(watch_id);
+            watch_id = navigator.geolocation.watchPosition(
                 function(position) {
                     $('form.stop_search').addClass('loading');
                     var latitude = position.coords.latitude;
