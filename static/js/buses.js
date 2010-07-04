@@ -49,14 +49,23 @@ $(function() {
         });
     }
     
+    var halt_watch_position = function() {};
+    
     if ( navigator.geolocation ) {
         var watch_id = null;
+        halt_watch_position = function() {
+            if ( watch_id ) {
+                navigator.geolocation.clearWatch(watch_id);
+                watch_id = null;
+            }
+        };
         
         $('#id_find_nearby').click(function(event) {
             event.preventDefault();
             $('form.stop_search').addClass('loading');
             var start_watch = new Date().getTime();
-            navigator.geolocation.clearWatch(watch_id);
+            halt_watch_position();
+            
             watch_id = navigator.geolocation.watchPosition(
                 function(position) {
                     $('form.stop_search').addClass('loading');
@@ -78,7 +87,7 @@ $(function() {
                         (new Date().getTime() - start_watch) > 30*1000
                     || (position.coords.accuracy <= 20)
                      ) {
-                        navigator.geolocation.clearWatch(watch_id);
+                        halt_watch_position();
                     }
                 },
                 function(code) {
@@ -380,6 +389,8 @@ $(function() {
             clearTimeout(current_search_id);
             current_search_id = null;
         }
+        halt_watch_position();
+        
         var search = $('#id_stop_name').val();
         current_search_id = setTimeout(function() {
             $('form.stop_search').addClass('loading');
