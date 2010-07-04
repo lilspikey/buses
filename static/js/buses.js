@@ -312,7 +312,7 @@ $(function() {
     var display_search_results = function(result, current_pos) {
         var results_list = $('<ul></ul>');
         
-        var map_width = $('#stops_found').width() - 20;
+        var map_width = Math.min($('#stops_found').width() - 20, 640);
         
         var map_params = [
             'size='+map_width+'x'+map_width,
@@ -354,7 +354,14 @@ $(function() {
         if ( result.length > 0 ) {
             results_list.append(
                 $('<li></li>').append(
-                    $('<img />').attr('src', map_url)
+                    $('<img />').attr(
+                        {
+                            src: map_url,
+                            width: map_width,
+                            height: map_width
+                        }
+                    )
+                    .addClass('loading')
                 )
             );
         }

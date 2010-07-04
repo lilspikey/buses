@@ -188,6 +188,10 @@ form.loading {
     padding-right: 24px;
 }
 
+img.loading {
+    background: url(../img/loading.gif) center center no-repeat;
+}
+
 #stops_found ul {
     margin-top: 2px;
     background: #003;
